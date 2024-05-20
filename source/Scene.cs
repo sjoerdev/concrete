@@ -1,11 +1,11 @@
 using System.Numerics;
 using System.Xml.Linq;
-using System.Collections.Generic;
-using System.Linq;
+
+namespace Project;
 
 public class Scene
 {
-    public List<GameObject> GameObjects = new List<GameObject>();
+    public List<GameObject> gameObjects = [];
 
     public Scene(string path)
     {
@@ -14,24 +14,18 @@ public class Scene
 
     public void Start()
     {
-        foreach (var gameObject in GameObjects)
-        {
-            gameObject.Start();
-        }
+        foreach (var gameObject in gameObjects) gameObject.Start();
     }
 
     public void Update(float deltaTime)
     {
-        foreach (var gameObject in GameObjects)
-        {
-            gameObject.Update(deltaTime);
-        }
+        foreach (var gameObject in gameObjects) gameObject.Update(deltaTime);
     }
 
     public GameObject CreateGameObject()
     {
         var gameObject = new GameObject();
-        GameObjects.Add(gameObject);
+        gameObjects.Add(gameObject);
         return gameObject;
     }
 
@@ -42,19 +36,19 @@ public class Scene
         foreach (var xmlGameObject in xml.Root.Elements("GameObject"))
         {
             var gameObject = CreateGameObject();
-            foreach (var component in xmlGameObject.Elements())
+            foreach (var xmlComponent in xmlGameObject.Elements())
             {
-                var type = component.Name.LocalName;
+                var type = xmlComponent.Name.LocalName;
                 if (type == "Transform")
                 {
                     var transform = gameObject.GetComponent<Transform>();
-                    transform.Position = ParseVector3(component.Element("Position").Value);
-                    transform.Rotation = ParseVector3(component.Element("Rotation").Value);
-                    transform.Scale = ParseVector3(component.Element("Scale").Value);
+                    transform.position = ParseVector3(xmlComponent.Element("position").Value);
+                    transform.rotation = ParseVector3(xmlComponent.Element("rotation").Value);
+                    transform.scale = ParseVector3(xmlComponent.Element("scale").Value);
                 }
                 else if (type == "MeshRenderer")
                 {
-                    var modelPath = component.Element("ModelPath").Value;
+                    var modelPath = xmlComponent.Element("modelPath").Value;
                     var meshRenderer = new MeshRenderer(modelPath);
                     gameObject.AddComponent(meshRenderer);
                 }

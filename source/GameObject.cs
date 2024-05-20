@@ -1,31 +1,32 @@
 using System.Collections.Generic;
-using System.Linq;
+
+namespace Project;
 
 public class GameObject
 {
-    public List<Component> Components = new List<Component>();
-    public Transform Transform;
+    public List<Component> components = [];
+    public Transform transform;
 
     public GameObject()
     {
-        Transform = new Transform();
-        AddComponent(Transform);
+        transform = new Transform();
+        AddComponent(transform);
     }
 
     public void AddComponent(Component component)
     {
         component.gameObject = this;
-        Components.Add(component);
+        components.Add(component);
     }
 
     public T GetComponent<T>() where T : Component
     {
-        return Components.OfType<T>().FirstOrDefault();
+        return components.OfType<T>().FirstOrDefault();
     }
 
     public void Start()
     {
-        foreach (var component in Components)
+        foreach (var component in components)
         {
             component.Start();
         }
@@ -33,7 +34,7 @@ public class GameObject
 
     public void Update(float deltaTime)
     {
-        foreach (var component in Components)
+        foreach (var component in components)
         {
             component.Update(deltaTime);
         }

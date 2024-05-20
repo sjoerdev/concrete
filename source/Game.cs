@@ -1,3 +1,7 @@
+using System;
+
+namespace Project;
+
 class Entry
 {
     static void Main()
@@ -16,7 +20,7 @@ class Game
 
     public void Start()
     {
-        LoadScene("scenes/scene1.xml");
+        LoadScene("scene.xml");
         PlayScene(0);
     }
 
