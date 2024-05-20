@@ -1,0 +1,15 @@
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+
+# Visual Studio
+.vs/
+
+# Fleet
+.fleet/
+
+# Build results
+[Bb]in/
+[Oo]bj/
