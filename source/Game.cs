@@ -10,7 +10,6 @@ class Entry
 {
     static void Main()
     {
-        Console.WriteLine("entry found");
         new Game();
     }
 }
@@ -43,8 +42,13 @@ class Game
         opengl = GL.GetApi(window);
 
         var scene = new Scene();
+
+        var cam = scene.CreateGameObject();
+        cam.AddComponent(new Camera());
+
         var gameObject = scene.CreateGameObject();
         gameObject.AddComponent(new MeshRenderer("resources/models/suzanne.obj"));
+
         scene.Activate();
 
         if (activeScene != null) activeScene.Start();

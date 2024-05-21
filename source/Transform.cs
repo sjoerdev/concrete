@@ -29,4 +29,16 @@ public class Transform : Component
     {
         // Render logic for Transform, if any
     }
+
+    public Vector3 Forward()
+    {
+        Matrix4x4 rotationMatrix = Matrix4x4.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z);
+        return Vector3.Transform(Vector3.UnitZ, rotationMatrix);
+    }
+
+    public Vector3 Up()
+    {
+        Matrix4x4 rotationMatrix = Matrix4x4.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z);
+        return Vector3.Transform(Vector3.UnitY, rotationMatrix);
+    }
 }

@@ -10,6 +10,7 @@ public unsafe class MeshRenderer : Component
 
     public Shader shader;
     public string modelPath;
+    uint vertexCount;
     uint vao;
 
     public MeshRenderer(string modelPath)
@@ -32,14 +33,18 @@ public unsafe class MeshRenderer : Component
     public override void Render(float deltaTime)
     {
         shader.Use();
+        shader.SetMatrix4("view", Camera.main.view);
+        shader.SetMatrix4("proj", Camera.main.proj);
+        
         opengl.BindVertexArray(vao);
-        opengl.DrawArrays(GLEnum.Triangles, 0, 3);
+        opengl.DrawArrays(GLEnum.Triangles, 0, vertexCount / 3);
         opengl.BindVertexArray(0);
     }
 
     uint VertexArrayFromModel(string path)
     {
         float[] vertices = LoadModel(path);
+        vertexCount = (uint)vertices.Length;
         uint vertexArray = opengl.GenVertexArray();
         opengl.BindVertexArray(vertexArray);
         uint vertexBuffer = opengl.GenBuffer();

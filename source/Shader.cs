@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using Silk.NET.OpenGL;
 
 namespace Project;
@@ -17,6 +18,12 @@ public class Shader
     public void Use()
     {
         opengl.UseProgram(handle);
+    }
+
+    public unsafe void SetMatrix4(string name, Matrix4x4 matrix)
+    {
+        opengl.UseProgram(handle);
+        opengl.UniformMatrix4(opengl.GetUniformLocation(handle, name), 1, false, (float*)&matrix);
     }
 
     private uint CompileProgram(string vertPath, string fragPath)
