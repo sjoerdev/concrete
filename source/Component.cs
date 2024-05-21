@@ -8,11 +8,16 @@ public class Component
 
     public virtual void Start()
     {
-        // should be overridden
+        // can be overridden
     }
 
     public virtual void Update(float deltaTime)
     {
-        // should be overridden
+        // can be overridden
+    }
+
+    public virtual void Render(float deltaTime)
+    {
+        // can be overridden
     }
 }

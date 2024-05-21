@@ -20,6 +20,11 @@ public class MeshRenderer : Component
 
     public override void Update(float deltaTime)
     {
+        // update stuff
+    }
+
+    public override void Render(float deltaTime)
+    {
         // render vao
     }
 }

@@ -4,8 +4,8 @@ namespace Project;
 
 public class GameObject
 {
-    public List<Component> components = [];
     public Transform transform;
+    public List<Component> components = [];
 
     public GameObject()
     {
@@ -37,6 +37,14 @@ public class GameObject
         foreach (var component in components)
         {
             component.Update(deltaTime);
+        }
+    }
+
+    public void Render(float deltaTime)
+    {
+        foreach (var component in components)
+        {
+            component.Render(deltaTime);
         }
     }
 }

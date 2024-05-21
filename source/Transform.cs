@@ -24,4 +24,9 @@ public class Transform : Component
     {
         // Update logic for Transform, if any
     }
+
+    public override void Render(float deltaTime)
+    {
+        // Render logic for Transform, if any
+    }
 }

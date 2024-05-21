@@ -31,7 +31,8 @@ class Game
         window = Window.Create(options);
         
         window.Load += Start;
-        window.Render += Update;
+        window.Update += Update;
+        window.Render += Render;
         window.FramebufferResize += Resize;
 
         window.Run();
@@ -47,6 +48,12 @@ class Game
     public void Update(double deltaTime)
     {
         if (activeScene != null) activeScene.Update((float)deltaTime);
+    }
+
+    public void Render(double deltaTime)
+    {
+        if (activeScene != null) activeScene.Render((float)deltaTime);
+
         opengl.Clear(ClearBufferMask.ColorBufferBit);
         opengl.ClearColor(System.Drawing.Color.CornflowerBlue);
     }

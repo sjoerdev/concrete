@@ -22,6 +22,11 @@ public class Scene
         foreach (var gameObject in gameObjects) gameObject.Update(deltaTime);
     }
 
+    public void Render(float deltaTime)
+    {
+        foreach (var gameObject in gameObjects) gameObject.Render(deltaTime);
+    }
+
     public GameObject CreateGameObject()
     {
         var gameObject = new GameObject();
