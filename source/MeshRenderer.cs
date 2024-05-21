@@ -1,5 +1,6 @@
 using System;
 using Silk.NET.OpenGL;
+using Silk.NET.Assimp;
 
 namespace Project;
 
@@ -38,13 +39,7 @@ public unsafe class MeshRenderer : Component
 
     uint VertexArrayFromModel(string path)
     {
-        float[] vertices = 
-        [
-            0.0f,  0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-           -0.5f, -0.5f, 0.0f,
-        ];
-
+        float[] vertices = LoadModel(path);
         uint vertexArray = opengl.GenVertexArray();
         opengl.BindVertexArray(vertexArray);
         uint vertexBuffer = opengl.GenBuffer();
@@ -55,5 +50,27 @@ public unsafe class MeshRenderer : Component
         opengl.BindBuffer(GLEnum.ArrayBuffer, 0);
         opengl.BindVertexArray(0);
         return vertexArray;
+    }
+
+    private float[] LoadModel(string path)
+    {
+        var assimp = Assimp.GetApi();
+        var scene = assimp.ImportFile(path, (uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.JoinIdenticalVertices);
+        if (scene == null || scene->MRootNode == null) throw new Exception("Error loading model.");
+
+        var vertices = new List<float>();
+        for (uint i = 0; i < scene->MNumMeshes; i++)
+        {
+            var mesh = scene->MMeshes[i];
+            for (uint j = 0; j < mesh->MNumVertices; j++)
+            {
+                var vertex = mesh->MVertices[j];
+                vertices.Add(vertex.X);
+                vertices.Add(vertex.Y);
+                vertices.Add(vertex.Z);
+            }
+        }
+        assimp.ReleaseImport(scene);
+        return vertices.ToArray();
     }
 }
