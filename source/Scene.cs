@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Xml.Linq;
+using Silk.NET.GLFW;
 
 namespace Project;
 
@@ -7,9 +8,15 @@ public class Scene
 {
     public List<GameObject> gameObjects = [];
 
-    public Scene(string path)
+    public Scene(string filePath = null)
     {
-        LoadFile(path);
+        Game.scenes.Add(this);
+        if (filePath != null) LoadFromFile(filePath);
+    }
+
+    public void Activate()
+    {
+        Game.activeScene = this;
     }
 
     public void Start()
@@ -34,11 +41,9 @@ public class Scene
         return gameObject;
     }
 
-    private void LoadFile(string filePath)
+    private void LoadFromFile(string filePath)
     {
-        var xml = XDocument.Load(filePath);
-
-        foreach (var xmlGameObject in xml.Root.Elements("GameObject"))
+        foreach (var xmlGameObject in XDocument.Load(filePath).Root.Elements("GameObject"))
         {
             var gameObject = CreateGameObject();
             foreach (var xmlComponent in xmlGameObject.Elements())

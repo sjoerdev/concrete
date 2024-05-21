@@ -17,11 +17,10 @@ class Entry
 
 class Game
 {
-    private static IWindow window;
-    private static GL opengl;
-
-    public Scene activeScene = null;
-    public List<Scene> scenes = [];
+    public static IWindow window;
+    public static GL opengl;
+    public static Scene activeScene = null;
+    public static List<Scene> scenes = [];
 
     public Game()
     {
@@ -42,7 +41,13 @@ class Game
     public void Start()
     {
         opengl = GL.GetApi(window);
-        // LoadScene("scene.xml");
+
+        var scene = new Scene();
+        var gameObject = scene.CreateGameObject();
+        gameObject.AddComponent(new MeshRenderer("resources/models/suzanne.obj"));
+        scene.Activate();
+
+        if (activeScene != null) activeScene.Start();
     }
 
     public void Update(double deltaTime)
@@ -52,22 +57,16 @@ class Game
 
     public void Render(double deltaTime)
     {
-        if (activeScene != null) activeScene.Render((float)deltaTime);
-
-        opengl.Clear(ClearBufferMask.ColorBufferBit);
+        opengl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         opengl.ClearColor(System.Drawing.Color.CornflowerBlue);
+
+        if (activeScene != null) activeScene.Render((float)deltaTime);
+        
+        window.SwapBuffers();
     }
 
     public void Resize(Vector2D<int> size)
     {
         opengl.Viewport(size);
-    }
-
-    private void LoadScene(string path)
-    {
-        var scene = new Scene(path);
-        scenes.Add(scene);
-        activeScene = scene;
-        activeScene.Start();
     }
 }

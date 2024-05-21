@@ -1,12 +1,15 @@
 using System;
+using Silk.NET.OpenGL;
 
 namespace Project;
 
-public class MeshRenderer : Component
+public unsafe class MeshRenderer : Component
 {
+    private GL opengl;
+
+    public Shader shader;
     public string modelPath;
-    int vao;
-    int vbo;
+    uint vao;
 
     public MeshRenderer(string modelPath)
     {
@@ -15,7 +18,9 @@ public class MeshRenderer : Component
 
     public override void Start()
     {
-        // vao = LoadModel(modelPath);
+        opengl = Game.opengl;
+        vao = VertexArrayFromModel(modelPath);
+        shader = new Shader("resources/shaders/default-vert.glsl", "resources/shaders/default-frag.glsl");
     }
 
     public override void Update(float deltaTime)
@@ -25,6 +30,30 @@ public class MeshRenderer : Component
 
     public override void Render(float deltaTime)
     {
-        // render vao
+        shader.Use();
+        opengl.BindVertexArray(vao);
+        opengl.DrawArrays(GLEnum.Triangles, 0, 3);
+        opengl.BindVertexArray(0);
+    }
+
+    uint VertexArrayFromModel(string path)
+    {
+        float[] vertices = 
+        [
+            0.0f,  0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+           -0.5f, -0.5f, 0.0f,
+        ];
+
+        uint vertexArray = opengl.GenVertexArray();
+        opengl.BindVertexArray(vertexArray);
+        uint vertexBuffer = opengl.GenBuffer();
+        opengl.BindBuffer(GLEnum.ArrayBuffer, vertexBuffer);
+        fixed (void* ptr = vertices) opengl.BufferData(GLEnum.ArrayBuffer, (nuint)(vertices.Length * sizeof(float)), ptr, GLEnum.StaticDraw);
+        opengl.VertexAttribPointer(0, 3, GLEnum.Float, false, 3 * sizeof(float), null);
+        opengl.EnableVertexAttribArray(0);
+        opengl.BindBuffer(GLEnum.ArrayBuffer, 0);
+        opengl.BindVertexArray(0);
+        return vertexArray;
     }
 }
