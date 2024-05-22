@@ -17,6 +17,7 @@ class Entry
 class Game
 {
     public static IWindow window;
+    public static IInputContext input;
     public static GL opengl;
     public static Scene activeScene = null;
     public static List<Scene> scenes = [];
@@ -40,6 +41,7 @@ class Game
     public void Start()
     {
         opengl = GL.GetApi(window);
+        input = window.CreateInput();
 
         var scene = new Scene();
 
