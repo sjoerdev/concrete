@@ -3,7 +3,7 @@ using Silk.NET.OpenGL;
 using Silk.NET.Assimp;
 using System.Numerics;
 
-namespace Project;
+namespace GameEngine;
 
 public unsafe class MeshRenderer : Component
 {
@@ -16,7 +16,7 @@ public unsafe class MeshRenderer : Component
 
     public override void Start()
     {
-        opengl = Game.opengl;
+        opengl = Engine.opengl;
         vao = VertexArrayFromModel(modelPath);
         shader = new Shader("resources/shaders/default-vert.glsl", "resources/shaders/default-frag.glsl");
     }
@@ -29,8 +29,8 @@ public unsafe class MeshRenderer : Component
     public override void Render(float deltaTime)
     {
         shader.Use();
-        shader.SetMatrix4("view", Camera.main.view);
-        shader.SetMatrix4("proj", Camera.main.proj);
+        shader.SetMatrix4("view", Engine.activeCamera.view);
+        shader.SetMatrix4("proj", Engine.activeCamera.proj);
         
         opengl.BindVertexArray(vao);
         opengl.DrawArrays(GLEnum.Triangles, 0, indicesCount / 3);

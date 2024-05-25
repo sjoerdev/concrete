@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Project;
+namespace GameEngine;
 
 public class Transform : Component
 {

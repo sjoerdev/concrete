@@ -1,6 +1,6 @@
 using System;
 
-namespace Project;
+namespace GameEngine;
 
 public class Component
 {

@@ -1,8 +1,7 @@
-using System;
 using System.Numerics;
 using Silk.NET.OpenGL;
 
-namespace Project;
+namespace GameEngine;
 
 public class Shader
 {
@@ -11,7 +10,7 @@ public class Shader
 
     public Shader(string vertPath, string fragPath)
     {
-        opengl = Game.opengl;
+        opengl = Engine.opengl;
         handle = CompileProgram(vertPath, fragPath);
     }
 

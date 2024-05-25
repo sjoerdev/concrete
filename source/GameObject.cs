@@ -1,6 +1,6 @@
-using System.Collections.Generic;
+using System;
 
-namespace Project;
+namespace GameEngine;
 
 public class GameObject
 {
@@ -10,7 +10,7 @@ public class GameObject
     public GameObject()
     {
         transform = AddComponent<Transform>();
-        Game.activeScene.gameObjects.Add(this);
+        Engine.activeScene.gameObjects.Add(this);
     }
 
     public GameObject(Scene scene)
@@ -34,25 +34,16 @@ public class GameObject
 
     public void Start()
     {
-        foreach (var component in components)
-        {
-            component.Start();
-        }
+        foreach (var component in components) component.Start();
     }
 
     public void Update(float deltaTime)
     {
-        foreach (var component in components)
-        {
-            component.Update(deltaTime);
-        }
+        foreach (var component in components) component.Update(deltaTime);
     }
 
     public void Render(float deltaTime)
     {
-        foreach (var component in components)
-        {
-            component.Render(deltaTime);
-        }
+        foreach (var component in components) component.Render(deltaTime);
     }
 }

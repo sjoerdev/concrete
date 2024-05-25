@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Xml.Linq;
 
-namespace Project;
+namespace GameEngine;
 
 public class Scene
 {
@@ -9,13 +9,13 @@ public class Scene
 
     public Scene(string filePath = null)
     {
-        Game.scenes.Add(this);
-        if (filePath != null) LoadFromFile(filePath);
+        Engine.scenes.Add(this);
+        if (filePath != null) Deserialize(filePath);
     }
 
     public void SetActive()
     {
-        Game.activeScene = this;
+        Engine.activeScene = this;
     }
 
     public void Start()
@@ -33,7 +33,7 @@ public class Scene
         foreach (var gameObject in gameObjects) gameObject.Render(deltaTime);
     }
 
-    private void LoadFromFile(string filePath)
+    private void Deserialize(string filePath)
     {
         foreach (var xmlGameObject in XDocument.Load(filePath).Root.Elements("GameObject"))
         {
