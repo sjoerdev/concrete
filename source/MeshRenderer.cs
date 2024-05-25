@@ -1,7 +1,6 @@
-using System;
+using System.Numerics;
 using Silk.NET.OpenGL;
 using Silk.NET.Assimp;
-using System.Numerics;
 
 namespace GameEngine;
 
@@ -12,12 +11,15 @@ public unsafe class MeshRenderer : Component
     public Shader shader;
     public string modelPath;
     public uint indicesCount;
+
     uint vao;
+    uint vbo;
+    uint ebo;
 
     public override void Start()
     {
         opengl = Engine.opengl;
-        vao = VertexArrayFromModel(modelPath);
+        InitModel(modelPath);
         shader = new Shader("resources/shaders/default-vert.glsl", "resources/shaders/default-frag.glsl");
     }
 
@@ -33,13 +35,15 @@ public unsafe class MeshRenderer : Component
         shader.SetMatrix4("proj", Engine.activeCamera.proj);
         
         opengl.BindVertexArray(vao);
-        opengl.DrawArrays(GLEnum.Triangles, 0, indicesCount / 3);
+        opengl.BindBuffer(GLEnum.ElementArrayBuffer, ebo);
+        opengl.DrawElements(GLEnum.Triangles, indicesCount, DrawElementsType.UnsignedInt, null);
+        opengl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
         opengl.BindVertexArray(0);
     }
 
-    private uint VertexArrayFromModel(string modelPath)
+    private void InitModel(string modelPath)
     {
-        LoadModel(modelPath, out Vertex[] vertices, out uint[] indices);
+        ExtractVertexData(modelPath, out Vertex[] vertices, out uint[] indices);
 
         indicesCount = (uint)indices.Length;
 
@@ -53,14 +57,14 @@ public unsafe class MeshRenderer : Component
         float[] vertbuffer = vertbufferlist.ToArray();
 
         // generate vao, vbo, ebo
-        uint temp_vao = opengl.GenVertexArray();
-        uint temp_vbo = opengl.GenBuffer();
-        uint temp_ebo = opengl.GenBuffer();
+        vao = opengl.GenVertexArray();
+        vbo = opengl.GenBuffer();
+        ebo = opengl.GenBuffer();
 
         // bind vao, vbo, ebo
-        opengl.BindVertexArray(temp_vao);
-        opengl.BindBuffer(GLEnum.ArrayBuffer, temp_vbo);
-        opengl.BindBuffer(GLEnum.ElementArrayBuffer, temp_ebo);
+        opengl.BindVertexArray(vao);
+        opengl.BindBuffer(GLEnum.ArrayBuffer, vbo);
+        opengl.BindBuffer(GLEnum.ElementArrayBuffer, ebo);
 
         // set buffers
         fixed (void* ptr = &vertbuffer[0]) opengl.BufferData(GLEnum.ArrayBuffer, (uint)(vertbuffer.Length * sizeof(float)), ptr, GLEnum.StaticDraw);
@@ -74,11 +78,9 @@ public unsafe class MeshRenderer : Component
         opengl.BindBuffer(GLEnum.ArrayBuffer, 0);
         opengl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
         opengl.BindVertexArray(0);
-
-        return temp_vao;
     }
 
-    private void LoadModel(string path, out Vertex[] vertices, out uint[] indices)
+    private void ExtractVertexData(string path, out Vertex[] vertices, out uint[] indices)
     {
         var assimp = Assimp.GetApi();
         var scene = assimp.ImportFile(path, (uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.JoinIdenticalVertices);
