@@ -42,23 +42,22 @@ class Game
     {
         opengl = GL.GetApi(window);
         input = window.CreateInput();
-
+        
         var scene = new Scene();
+        scene.SetActive();
 
-        var cam = scene.CreateGameObject();
-        cam.AddComponent(new Camera());
+        var camera = new GameObject();
+        camera.AddComponent<Camera>();
 
-        var gameObject = scene.CreateGameObject();
-        gameObject.AddComponent(new MeshRenderer("resources/models/suzanne.obj"));
+        var gameObject = new GameObject();
+        gameObject.AddComponent<MeshRenderer>().modelPath = "resources/models/suzanne.obj";
 
-        scene.Activate();
-
-        if (activeScene != null) activeScene.Start();
+        activeScene?.Start();
     }
 
     public void Update(double deltaTime)
     {
-        if (activeScene != null) activeScene.Update((float)deltaTime);
+        activeScene?.Update((float)deltaTime);
     }
 
     public void Render(double deltaTime)
@@ -66,7 +65,7 @@ class Game
         opengl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         opengl.ClearColor(System.Drawing.Color.CornflowerBlue);
 
-        if (activeScene != null) activeScene.Render((float)deltaTime);
+        activeScene?.Render((float)deltaTime);
         
         window.SwapBuffers();
     }

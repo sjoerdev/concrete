@@ -1,6 +1,5 @@
 using System.Numerics;
 using System.Xml.Linq;
-using Silk.NET.GLFW;
 
 namespace Project;
 
@@ -14,7 +13,7 @@ public class Scene
         if (filePath != null) LoadFromFile(filePath);
     }
 
-    public void Activate()
+    public void SetActive()
     {
         Game.activeScene = this;
     }
@@ -34,18 +33,11 @@ public class Scene
         foreach (var gameObject in gameObjects) gameObject.Render(deltaTime);
     }
 
-    public GameObject CreateGameObject()
-    {
-        var gameObject = new GameObject();
-        gameObjects.Add(gameObject);
-        return gameObject;
-    }
-
     private void LoadFromFile(string filePath)
     {
         foreach (var xmlGameObject in XDocument.Load(filePath).Root.Elements("GameObject"))
         {
-            var gameObject = CreateGameObject();
+            var gameObject = new GameObject(this);
             foreach (var xmlComponent in xmlGameObject.Elements())
             {
                 var type = xmlComponent.Name.LocalName;
@@ -59,8 +51,7 @@ public class Scene
                 else if (type == "MeshRenderer")
                 {
                     var modelPath = xmlComponent.Element("modelPath").Value;
-                    var meshRenderer = new MeshRenderer(modelPath);
-                    gameObject.AddComponent(meshRenderer);
+                    gameObject.AddComponent<MeshRenderer>().modelPath = modelPath;
                 }
             }
         }

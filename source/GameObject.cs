@@ -9,14 +9,22 @@ public class GameObject
 
     public GameObject()
     {
-        transform = new Transform();
-        AddComponent(transform);
+        transform = AddComponent<Transform>();
+        Game.activeScene.gameObjects.Add(this);
     }
 
-    public void AddComponent(Component component)
+    public GameObject(Scene scene)
     {
+        transform = AddComponent<Transform>();
+        scene.gameObjects.Add(this);
+    }
+
+    public T AddComponent<T>() where T : Component, new()
+    {
+        T component = new T();
         component.gameObject = this;
         components.Add(component);
+        return component;
     }
 
     public T GetComponent<T>() where T : Component

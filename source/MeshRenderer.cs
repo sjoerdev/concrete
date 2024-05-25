@@ -14,11 +14,6 @@ public unsafe class MeshRenderer : Component
     public uint indicesCount;
     uint vao;
 
-    public MeshRenderer(string modelPath)
-    {
-        this.modelPath = modelPath;
-    }
-
     public override void Start()
     {
         opengl = Game.opengl;
