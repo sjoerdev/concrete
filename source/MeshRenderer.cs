@@ -19,7 +19,7 @@ public unsafe class MeshRenderer : Component
     public override void Start()
     {
         opengl = Engine.opengl;
-        InitModel(modelPath);
+        ReadModel(modelPath);
         shader = new Shader("resources/shaders/default-vert.glsl", "resources/shaders/default-frag.glsl");
     }
 
@@ -36,25 +36,19 @@ public unsafe class MeshRenderer : Component
         
         opengl.BindVertexArray(vao);
         opengl.BindBuffer(GLEnum.ElementArrayBuffer, ebo);
+        
         opengl.DrawElements(GLEnum.Triangles, indicesCount, DrawElementsType.UnsignedInt, null);
+
         opengl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
         opengl.BindVertexArray(0);
     }
 
-    private void InitModel(string modelPath)
+    private void ReadModel(string modelPath)
     {
-        ExtractVertexData(modelPath, out Vertex[] vertices, out uint[] indices);
-
+        // get vertex data
+        ReadVertices(modelPath, out Vertex[] vertices, out uint[] indices);
+        var vertexfloats = VertexFloats(vertices);
         indicesCount = (uint)indices.Length;
-
-        List<float> vertbufferlist = [];
-        foreach (var vertex in vertices)
-        {
-            vertbufferlist.Add(vertex.position.X);
-            vertbufferlist.Add(vertex.position.Y);
-            vertbufferlist.Add(vertex.position.Z);
-        }
-        float[] vertbuffer = vertbufferlist.ToArray();
 
         // generate vao, vbo, ebo
         vao = opengl.GenVertexArray();
@@ -67,12 +61,16 @@ public unsafe class MeshRenderer : Component
         opengl.BindBuffer(GLEnum.ElementArrayBuffer, ebo);
 
         // set buffers
-        fixed (void* ptr = &vertbuffer[0]) opengl.BufferData(GLEnum.ArrayBuffer, (uint)(vertbuffer.Length * sizeof(float)), ptr, GLEnum.StaticDraw);
+        fixed (void* ptr = &vertexfloats[0]) opengl.BufferData(GLEnum.ArrayBuffer, (uint)(vertexfloats.Length * sizeof(float)), ptr, GLEnum.StaticDraw);
         fixed (void* ptr = &indices[0]) opengl.BufferData(GLEnum.ElementArrayBuffer, (uint)(indices.Length * sizeof(uint)), ptr, GLEnum.StaticDraw);
         
         // atribute arrays
         opengl.EnableVertexAttribArray(0);
-        opengl.VertexAttribPointer(0, 3, GLEnum.Float, false, 3 * sizeof(float), null);
+        opengl.VertexAttribPointer(0, 3, GLEnum.Float, false, (uint)sizeof(Vertex), (void*)0);
+        opengl.EnableVertexAttribArray(1);
+        opengl.VertexAttribPointer(1, 3, GLEnum.Float, false, (uint)sizeof(Vertex), (void*)(3 * sizeof(float)));
+        opengl.EnableVertexAttribArray(2);
+        opengl.VertexAttribPointer(2, 2, GLEnum.Float, false, (uint)sizeof(Vertex), (void*)(6 * sizeof(float)));
         
         // unbind
         opengl.BindBuffer(GLEnum.ArrayBuffer, 0);
@@ -80,14 +78,15 @@ public unsafe class MeshRenderer : Component
         opengl.BindVertexArray(0);
     }
 
-    private void ExtractVertexData(string path, out Vertex[] vertices, out uint[] indices)
+    private void ReadVertices(string path, out Vertex[] vertices, out uint[] indices)
     {
+        var tempVertices = new List<Vertex>();
+        var tempIndices = new List<uint>();
+
         var assimp = Assimp.GetApi();
         var scene = assimp.ImportFile(path, (uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.JoinIdenticalVertices);
         if (scene == null) throw new Exception("Error loading model.");
-
-        var tempVertices = new List<Vertex>();
-        var tempIndices = new List<uint>();
+        
         for (uint i = 0; i < scene->MNumMeshes; i++)
         {
             var mesh = scene->MMeshes[i];
@@ -112,7 +111,24 @@ public unsafe class MeshRenderer : Component
         vertices = tempVertices.ToArray();
         indices = tempIndices.ToArray();
     }
-    
+
+    private float[] VertexFloats(Vertex[] vertices)
+    {
+        List<float> list = new List<float>();
+        foreach (var vertex in vertices)
+        {
+            list.Add(vertex.position.X);
+            list.Add(vertex.position.Y);
+            list.Add(vertex.position.Z);
+            list.Add(vertex.normal.X);
+            list.Add(vertex.normal.Y);
+            list.Add(vertex.normal.Z);
+            list.Add(vertex.uv.X);
+            list.Add(vertex.uv.Y);
+        }
+        return list.ToArray();
+    }
+
     private struct Vertex(Vector3 position, Vector3 normal, Vector2 uv)
     {
         public Vector3 position = position;
