@@ -7,12 +7,13 @@ layout (location = 2) in vec2 aUv;
 out vec3 normal;
 out vec2 uv;
 
+uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 
 void main()
 {
-    gl_Position = proj * view * vec4(aPosition, 1.0);
-    normal = aNormal; // mat3(transpose(inverse(model))) * aNormal;
+    gl_Position = proj * view * model * vec4(aPosition, 1.0);
+    normal = mat3(transpose(inverse(model))) * aNormal;
     uv = aUv;
 }

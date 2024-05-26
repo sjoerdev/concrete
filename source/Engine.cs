@@ -46,7 +46,7 @@ class Engine
 
         var gameObject = new GameObject();
         gameObject.AddComponent<MeshRenderer>().modelPath = "resources/models/suzanne.obj";
-
+        
         activeScene?.Start();
     }
 

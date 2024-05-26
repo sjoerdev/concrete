@@ -47,4 +47,13 @@ public class Transform : Component
         Matrix4x4 rotationMatrix = Matrix4x4.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z);
         return Vector3.Transform(Vector3.UnitX, rotationMatrix);
     }
+
+    public Matrix4x4 GetModelMatrix()
+    {
+        Matrix4x4 scale = Matrix4x4.CreateScale(this.scale);
+        Matrix4x4 rotation = Matrix4x4.CreateFromYawPitchRoll(this.rotation.Y, this.rotation.X, this.rotation.Z);
+        Matrix4x4 translation = Matrix4x4.CreateTranslation(position);
+        Matrix4x4 model = scale * rotation * translation;
+        return model;
+    }
 }

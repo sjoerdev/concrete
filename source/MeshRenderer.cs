@@ -31,6 +31,7 @@ public unsafe class MeshRenderer : Component
     public override void Render(float deltaTime)
     {
         shader.Use();
+        shader.SetMatrix4("model", gameObject.transform.GetModelMatrix());
         shader.SetMatrix4("view", Engine.activeCamera.view);
         shader.SetMatrix4("proj", Engine.activeCamera.proj);
         
