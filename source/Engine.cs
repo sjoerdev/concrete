@@ -57,6 +57,7 @@ class Engine
 
     public void Render(double deltaTime)
     {
+        opengl.Enable(EnableCap.DepthTest);
         opengl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         opengl.ClearColor(System.Drawing.Color.CornflowerBlue);
 
