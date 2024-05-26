@@ -93,10 +93,9 @@ public unsafe class MeshRenderer : Component
             var mesh = scene->MMeshes[i];
             for (uint j = 0; j < mesh->MNumVertices; j++)
             {
-                var position = mesh->MVertices[j];
-                var normal = mesh->MNormals[j];
-                var uv = Vector2.Zero;
-                if (mesh->MTextureCoords[0] != null) uv = new Vector2(mesh->MTextureCoords[0][j].X, mesh->MTextureCoords[0][j].Y);
+                var position = mesh->MVertices != null ? mesh->MVertices[j] : Vector3.Zero;
+                var normal = mesh->MNormals != null ? mesh->MNormals[j] : Vector3.Zero;
+                var uv = mesh->MTextureCoords[0] != null ? new Vector2(mesh->MTextureCoords[0][j].X, mesh->MTextureCoords[0][j].Y) : Vector2.Zero;
                 tempVertices.Add(new Vertex(position, normal, uv));
             }
             for (uint j = 0; j < mesh->MNumFaces; j++)

@@ -45,7 +45,7 @@ class Engine
         camera.SetActive();
 
         var gameObject = new GameObject();
-        gameObject.AddComponent<MeshRenderer>().modelPath = "resources/models/suzanne.obj";
+        gameObject.AddComponent<MeshRenderer>().modelPath = "resources/models/cesium.gltf";
         
         activeScene?.Start();
     }
