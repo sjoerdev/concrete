@@ -25,6 +25,12 @@ public class Shader
         opengl.UniformMatrix4(opengl.GetUniformLocation(handle, name), 1, false, (float*)&matrix);
     }
 
+    public unsafe void SetTexture(string name, uint unit)
+    {
+        opengl.UseProgram(handle);
+        opengl.Uniform1(opengl.GetUniformLocation(handle, name), unit);
+    }
+
     private uint CompileProgram(string vertPath, string fragPath)
     {
         string vertCode = File.ReadAllText(vertPath);

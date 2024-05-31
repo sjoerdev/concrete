@@ -1,6 +1,9 @@
 using System.Numerics;
 using Silk.NET.OpenGL;
 using Silk.NET.Assimp;
+using Silk.NET.Core.Native;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace GameEngine;
 
@@ -16,10 +19,12 @@ public unsafe class MeshRenderer : Component
     uint vbo;
     uint ebo;
 
+    uint mainTexture;
+
     public override void Start()
     {
         opengl = Engine.opengl;
-        ReadModel(modelPath);
+        LoadModelFile(modelPath);
         shader = new Shader("resources/shaders/default-vert.glsl", "resources/shaders/default-frag.glsl");
     }
 
@@ -34,22 +39,29 @@ public unsafe class MeshRenderer : Component
         shader.SetMatrix4("model", gameObject.transform.GetModelMatrix());
         shader.SetMatrix4("view", Engine.activeCamera.view);
         shader.SetMatrix4("proj", Engine.activeCamera.proj);
+
+        opengl.ActiveTexture(GLEnum.Texture0);
+        opengl.BindTexture(GLEnum.Texture2D, mainTexture);
+        shader.SetTexture("tex", 0);
         
         opengl.BindVertexArray(vao);
         opengl.BindBuffer(GLEnum.ElementArrayBuffer, ebo);
-        
         opengl.DrawElements(GLEnum.Triangles, indicesCount, DrawElementsType.UnsignedInt, null);
-
         opengl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
         opengl.BindVertexArray(0);
     }
 
-    private void ReadModel(string modelPath)
+    private void LoadModelFile(string modelPath)
     {
-        // get vertex data
-        ReadVertices(modelPath, out Vertex[] vertices, out uint[] indices);
-        var vertexfloats = VertexFloats(vertices);
-        indicesCount = (uint)indices.Length;
+        // generate the assimp data
+        var assimpdata = GenerateAssimpData(modelPath);
+
+        // set main texture
+        mainTexture = assimpdata.texture;
+
+        // cast vertices data to floats
+        var vertices = ToFloats(assimpdata.vertices);
+        indicesCount = (uint)assimpdata.indices.Length;
 
         // generate vao, vbo, ebo
         vao = opengl.GenVertexArray();
@@ -62,8 +74,8 @@ public unsafe class MeshRenderer : Component
         opengl.BindBuffer(GLEnum.ElementArrayBuffer, ebo);
 
         // set buffers
-        fixed (void* ptr = &vertexfloats[0]) opengl.BufferData(GLEnum.ArrayBuffer, (uint)(vertexfloats.Length * sizeof(float)), ptr, GLEnum.StaticDraw);
-        fixed (void* ptr = &indices[0]) opengl.BufferData(GLEnum.ElementArrayBuffer, (uint)(indices.Length * sizeof(uint)), ptr, GLEnum.StaticDraw);
+        fixed (void* ptr = &vertices[0]) opengl.BufferData(GLEnum.ArrayBuffer, (uint)(vertices.Length * sizeof(float)), ptr, GLEnum.StaticDraw);
+        fixed (void* ptr = &assimpdata.indices[0]) opengl.BufferData(GLEnum.ElementArrayBuffer, (uint)(assimpdata.indices.Length * sizeof(uint)), ptr, GLEnum.StaticDraw);
         
         // atribute arrays
         opengl.EnableVertexAttribArray(0);
@@ -79,10 +91,11 @@ public unsafe class MeshRenderer : Component
         opengl.BindVertexArray(0);
     }
 
-    private void ReadVertices(string path, out Vertex[] vertices, out uint[] indices)
+    private AssimpData GenerateAssimpData(string path)
     {
         var tempVertices = new List<Vertex>();
         var tempIndices = new List<uint>();
+        uint tempTexture = 0;
 
         var assimp = Assimp.GetApi();
         var scene = assimp.ImportFile(path, (uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.JoinIdenticalVertices);
@@ -91,6 +104,8 @@ public unsafe class MeshRenderer : Component
         for (uint i = 0; i < scene->MNumMeshes; i++)
         {
             var mesh = scene->MMeshes[i];
+
+            // vertices
             for (uint j = 0; j < mesh->MNumVertices; j++)
             {
                 var position = mesh->MVertices != null ? mesh->MVertices[j] : Vector3.Zero;
@@ -98,6 +113,8 @@ public unsafe class MeshRenderer : Component
                 var uv = mesh->MTextureCoords[0] != null ? new Vector2(mesh->MTextureCoords[0][j].X, mesh->MTextureCoords[0][j].Y) : Vector2.Zero;
                 tempVertices.Add(new Vertex(position, normal, uv));
             }
+
+            // indices
             for (uint j = 0; j < mesh->MNumFaces; j++)
             {
                 var face = mesh->MFaces[j];
@@ -107,14 +124,55 @@ public unsafe class MeshRenderer : Component
                 }
             }
         }
+
+        for (int i = 0; i < scene->MNumMaterials; i++)
+        {
+            var material = scene->MMaterials[i];
+            var numTextures = assimp.GetMaterialTextureCount(material, TextureType.Diffuse);
+
+            // textures
+            for (uint j = 0; j < numTextures; j++)
+            {
+                var texture = scene->MTextures[j];
+                var format = SilkMarshal.PtrToString((nint)(&texture->AchFormatHint[0]));
+
+                if (format == "jpg")
+                {
+                    var textureData = new Span<byte>(texture->PcData, (int)texture->MWidth);
+
+                    tempTexture = opengl.GenTexture();
+                    opengl.ActiveTexture(TextureUnit.Texture0);
+                    opengl.BindTexture(TextureTarget.Texture2D, tempTexture);
+
+                    var image = Image.Load<Rgba32>(textureData);
+                    int width = image.Width;
+                    int height = image.Height;
+                    byte[] rawdata = new byte[width * height * 4];
+                    image.CopyPixelDataTo(rawdata);
+                    
+                    fixed (void* ptr = rawdata)
+                    {
+                        opengl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)width, (uint)height, 0, GLEnum.Rgba, PixelType.UnsignedByte, ptr);
+                    }
+
+                    opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.Repeat);
+                    opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapT, (int)GLEnum.Repeat);
+                    opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest);
+                    opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Nearest);
+                    opengl.GenerateMipmap(GLEnum.Texture2D);
+                    opengl.BindTexture(GLEnum.Texture2D, 0);
+                }
+            }
+        }
+
+
         assimp.ReleaseImport(scene);
-        vertices = tempVertices.ToArray();
-        indices = tempIndices.ToArray();
+        return new AssimpData(tempVertices.ToArray(), tempIndices.ToArray(), tempTexture);
     }
 
-    private float[] VertexFloats(Vertex[] vertices)
+    private float[] ToFloats(Vertex[] vertices)
     {
-        List<float> list = new List<float>();
+        List<float> list = [];
         foreach (var vertex in vertices)
         {
             list.Add(vertex.position.X);
@@ -127,6 +185,13 @@ public unsafe class MeshRenderer : Component
             list.Add(vertex.uv.Y);
         }
         return list.ToArray();
+    }
+
+    private struct AssimpData(Vertex[] vertices, uint[] indices, uint texture)
+    {
+        public Vertex[] vertices = vertices;
+        public uint[] indices = indices;
+        public uint texture = texture;
     }
 
     private struct Vertex(Vector3 position, Vector3 normal, Vector2 uv)

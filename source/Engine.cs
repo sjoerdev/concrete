@@ -45,7 +45,7 @@ class Engine
         camera.SetActive();
 
         var gameObject = new GameObject();
-        gameObject.AddComponent<MeshRenderer>().modelPath = "resources/models/cesium.gltf";
+        gameObject.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
         
         activeScene?.Start();
     }

@@ -5,7 +5,10 @@ in vec2 uv;
 
 out vec4 color;
 
+uniform sampler2D tex;
+
 void main()
 {
-    color = vec4(normal * 0.5 + 0.5, 1.0);
+    vec3 value = texture(tex, uv).rgb;
+    color = vec4(value, 1.0);
 }
