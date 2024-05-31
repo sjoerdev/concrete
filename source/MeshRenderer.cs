@@ -4,6 +4,7 @@ using Silk.NET.Assimp;
 using Silk.NET.Core.Native;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace GameEngine;
 
@@ -145,6 +146,8 @@ public unsafe class MeshRenderer : Component
                     opengl.BindTexture(TextureTarget.Texture2D, tempTexture);
 
                     var image = Image.Load<Rgba32>(textureData);
+                    image.Mutate(x => x.Flip(FlipMode.Vertical));
+                    
                     int width = image.Width;
                     int height = image.Height;
                     byte[] rawdata = new byte[width * height * 4];
