@@ -35,7 +35,7 @@ struct SpotLight
     float softness;
 };
 
-#define MAX_LIGHTS 128
+#define MAX_LIGHTS 16
 
 uniform DirectionalLight dirLights[MAX_LIGHTS];
 uniform PointLight pointLights[MAX_LIGHTS];
@@ -90,19 +90,21 @@ void main()
 {
     vec3 viewdir = normalize(viewpos - fragpos);
 
-    vec3 result = texture(tex, uv).rgb;
+    vec3 albedo = texture(tex, uv).rgb;
+
+    vec3 light = vec3(0);
 
     // Directional lights
     for(int i = 0; i < dirLights.length(); i++)
-        result += CalcDirectionalLight(dirLights[i], normal, viewdir);
+        light += CalcDirectionalLight(dirLights[i], normal, viewdir);
     
     // Point lights
     for(int i = 0; i < pointLights.length(); i++)
-        result += CalcPointLight(pointLights[i], normal, fragpos, viewdir);
+        light += CalcPointLight(pointLights[i], normal, fragpos, viewdir);
     
     // Spot lights
     for(int i = 0; i < spotLights.length(); i++)
-        result += CalcSpotLight(spotLights[i], normal, fragpos, viewdir);
+        light += CalcSpotLight(spotLights[i], normal, fragpos, viewdir);
 
-    color = vec4(result, 1.0);
+    color = vec4(albedo * light, 1.0);
 }

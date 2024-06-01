@@ -2,6 +2,7 @@ using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
+using System.Numerics;
 
 namespace GameEngine;
 
@@ -48,8 +49,11 @@ class Engine
         var camera = cameraGameObject.AddComponent<Camera>();
         camera.SetActive();
 
-        var gameObject = new GameObject();
-        gameObject.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
+        var meshGameObject = new GameObject();
+        meshGameObject.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
+
+        var mainLight = new GameObject();
+        mainLight.AddComponent<DirectionalLight>().gameObject.transform.rotation = new Vector3(-45, 0, -45);
         
         activeScene?.Start();
     }
