@@ -37,7 +37,50 @@ public unsafe class MeshRenderer : Component
         shader.SetMatrix4("view", Engine.activeCamera.view);
         shader.SetMatrix4("proj", Engine.activeCamera.proj);
         shader.SetTexture("tex", mainTexture, 0);
+        SetLights();
         RenderMesh(mesh);
+    }
+
+    private void SetLights()
+    {
+        var directionalLights = Engine.directionalLights;
+        var pointLights = Engine.pointLights;
+        var spotLights = Engine.spotLights;
+
+        // set directional lights
+        for (int i = 0; i < directionalLights.Count; i++)
+        {
+            var light = directionalLights[i];
+            shader.SetVector3($"dirLights[{i}].direction", light.gameObject.transform.rotation);
+            shader.SetFloat($"dirLights[{i}].brightness", light.brightness);
+            shader.SetVector3($"dirLights[{i}].color", light.color);
+        }
+
+        // set point lights
+        for (int i = 0; i < pointLights.Count; i++)
+        {
+            var light = pointLights[i];
+            shader.SetVector3($"pointLights[{i}].position", light.gameObject.transform.position);
+            shader.SetFloat($"pointLights[{i}].brightness", light.brightness);
+            shader.SetVector3($"pointLights[{i}].color", light.color);
+            shader.SetFloat($"pointLights[{i}].range", light.range);
+        }
+
+        // set spotlights
+        for (int i = 0; i < spotLights.Count; i++)
+        {
+            var light = spotLights[i];
+            shader.SetVector3($"spotLights[{i}].position", light.gameObject.transform.position);
+            shader.SetVector3($"spotLights[{i}].direction", light.gameObject.transform.rotation);
+            shader.SetFloat($"spotLights[{i}].brightness", light.brightness);
+            shader.SetVector3($"spotLights[{i}].color", light.color);
+            shader.SetFloat($"spotLights[{i}].range", light.range);
+            shader.SetFloat($"spotLights[{i}].angle", light.angle);
+            shader.SetFloat($"spotLights[{i}].softness", light.softness);
+        }
+
+        // set view position
+        shader.SetVector3("viewpos", Engine.activeCamera.gameObject.transform.position);
     }
 
     private void RenderMesh(Mesh meshToRender)

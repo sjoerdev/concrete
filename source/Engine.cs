@@ -16,6 +16,10 @@ class Engine
 
     public static Camera activeCamera = null;
 
+    public static List<DirectionalLight> directionalLights = [];
+    public static List<PointLight> pointLights = [];
+    public static List<SpotLight> spotLights = [];
+
     public Engine()
     {
         var options = WindowOptions.Default;

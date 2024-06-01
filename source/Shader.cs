@@ -19,17 +19,27 @@ public class Shader
         opengl.UseProgram(handle);
     }
 
-    public unsafe void SetMatrix4(string name, Matrix4x4 matrix)
+    public void SetFloat(string name, float value)
     {
-        opengl.UseProgram(handle);
-        opengl.UniformMatrix4(opengl.GetUniformLocation(handle, name), 1, false, (float*)&matrix);
+        opengl.Uniform1(opengl.GetUniformLocation(handle, name), value);
     }
 
-    public unsafe void SetTexture(string name, uint texture, uint unit)
+    public void SetVector3(string name, Vector3 value)
+    {
+        opengl.Uniform3(opengl.GetUniformLocation(handle, name), value.X, value.Y, value.Z);
+    }
+
+    public unsafe void SetMatrix4(string name, Matrix4x4 value)
+    {
+        opengl.UseProgram(handle);
+        opengl.UniformMatrix4(opengl.GetUniformLocation(handle, name), 1, false, (float*)&value);
+    }
+
+    public unsafe void SetTexture(string name, uint value, uint unit)
     {
         opengl.UseProgram(handle);
         opengl.ActiveTexture(GLEnum.Texture0);
-        opengl.BindTexture(GLEnum.Texture2D, texture);
+        opengl.BindTexture(GLEnum.Texture2D, value);
         opengl.Uniform1(opengl.GetUniformLocation(handle, name), unit);
     }
 
