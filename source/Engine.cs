@@ -62,8 +62,6 @@ class Engine
         opengl.ClearColor(System.Drawing.Color.CornflowerBlue);
 
         activeScene?.Render((float)deltaTime);
-        
-        window.SwapBuffers();
     }
 
     public void Resize(Vector2D<int> size)
