@@ -25,9 +25,11 @@ public class Shader
         opengl.UniformMatrix4(opengl.GetUniformLocation(handle, name), 1, false, (float*)&matrix);
     }
 
-    public unsafe void SetTexture(string name, uint unit)
+    public unsafe void SetTexture(string name, uint texture, uint unit)
     {
         opengl.UseProgram(handle);
+        opengl.ActiveTexture(GLEnum.Texture0);
+        opengl.BindTexture(GLEnum.Texture2D, texture);
         opengl.Uniform1(opengl.GetUniformLocation(handle, name), unit);
     }
 

@@ -12,21 +12,17 @@ public unsafe class MeshRenderer : Component
 {
     private GL opengl;
 
-    public Shader shader;
     public string modelPath;
-    public uint indicesCount;
 
-    uint vao;
-    uint vbo;
-    uint ebo;
-
+    Mesh mesh;
+    Shader shader;
     uint mainTexture;
 
     public override void Start()
     {
         opengl = Engine.opengl;
-        LoadModelFile(modelPath);
         shader = new Shader("resources/shaders/default-vert.glsl", "resources/shaders/default-frag.glsl");
+        LoadModelFile(modelPath);
     }
 
     public override void Update(float deltaTime)
@@ -40,14 +36,15 @@ public unsafe class MeshRenderer : Component
         shader.SetMatrix4("model", gameObject.transform.GetModelMatrix());
         shader.SetMatrix4("view", Engine.activeCamera.view);
         shader.SetMatrix4("proj", Engine.activeCamera.proj);
+        shader.SetTexture("tex", mainTexture, 0);
+        RenderMesh(mesh);
+    }
 
-        opengl.ActiveTexture(GLEnum.Texture0);
-        opengl.BindTexture(GLEnum.Texture2D, mainTexture);
-        shader.SetTexture("tex", 0);
-        
-        opengl.BindVertexArray(vao);
-        opengl.BindBuffer(GLEnum.ElementArrayBuffer, ebo);
-        opengl.DrawElements(GLEnum.Triangles, indicesCount, DrawElementsType.UnsignedInt, null);
+    private void RenderMesh(Mesh meshToRender)
+    {
+        opengl.BindVertexArray(meshToRender.vao);
+        opengl.BindBuffer(GLEnum.ElementArrayBuffer, meshToRender.ebo);
+        opengl.DrawElements(GLEnum.Triangles, meshToRender.indicesCount, DrawElementsType.UnsignedInt, null);
         opengl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
         opengl.BindVertexArray(0);
     }
@@ -57,22 +54,19 @@ public unsafe class MeshRenderer : Component
         // generate the assimp data
         var assimpdata = GenerateAssimpData(modelPath);
 
+        // generate mesh
+        mesh = new Mesh(opengl.GenVertexArray(), opengl.GenBuffer(), opengl.GenBuffer(), (uint)assimpdata.indices.Length);
+
         // set main texture
         mainTexture = assimpdata.texture;
 
         // cast vertices data to floats
         var vertices = ToFloats(assimpdata.vertices);
-        indicesCount = (uint)assimpdata.indices.Length;
-
-        // generate vao, vbo, ebo
-        vao = opengl.GenVertexArray();
-        vbo = opengl.GenBuffer();
-        ebo = opengl.GenBuffer();
 
         // bind vao, vbo, ebo
-        opengl.BindVertexArray(vao);
-        opengl.BindBuffer(GLEnum.ArrayBuffer, vbo);
-        opengl.BindBuffer(GLEnum.ElementArrayBuffer, ebo);
+        opengl.BindVertexArray(mesh.vao);
+        opengl.BindBuffer(GLEnum.ArrayBuffer, mesh.vbo);
+        opengl.BindBuffer(GLEnum.ElementArrayBuffer, mesh.ebo);
 
         // set buffers
         fixed (void* ptr = &vertices[0]) opengl.BufferData(GLEnum.ArrayBuffer, (uint)(vertices.Length * sizeof(float)), ptr, GLEnum.StaticDraw);
@@ -188,6 +182,14 @@ public unsafe class MeshRenderer : Component
             list.Add(vertex.uv.Y);
         }
         return list.ToArray();
+    }
+
+    private struct Mesh(uint vao, uint vbo, uint ebo, uint indicesCount)
+    {
+        public uint vao = vao;
+        public uint vbo = vbo;
+        public uint ebo = ebo;
+        public uint indicesCount = indicesCount;
     }
 
     private struct AssimpData(Vertex[] vertices, uint[] indices, uint texture)
