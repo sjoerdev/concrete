@@ -27,12 +27,10 @@ class Engine
         options.Size = new Vector2D<int>(1280, 720);
         options.Title = "untitled";
         window = Window.Create(options);
-        
         window.Load += Start;
         window.Update += Update;
         window.Render += Render;
         window.FramebufferResize += Resize;
-
         window.Run();
         window.Dispose();
     }
@@ -42,18 +40,14 @@ class Engine
         opengl = GL.GetApi(window);
         input = window.CreateInput();
 
-        var scene = new Scene();
-        scene.SetActive();
+        new Scene().SetActive();
 
-        var cameraGameObject = new GameObject();
-        var camera = cameraGameObject.AddComponent<Camera>();
-        camera.SetActive();
+        var camera = new GameObject();
+        camera.AddComponent<Camera>().SetActive();
+        camera.AddComponent<SpotLight>();
 
-        var meshGameObject = new GameObject();
-        meshGameObject.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
-
-        var mainLight = new GameObject();
-        mainLight.AddComponent<DirectionalLight>().gameObject.transform.rotation = new Vector3(-45, 0, -45);
+        var model = new GameObject();
+        model.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
         
         activeScene?.Start();
     }
@@ -67,8 +61,7 @@ class Engine
     {
         opengl.Enable(EnableCap.DepthTest);
         opengl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        opengl.ClearColor(System.Drawing.Color.CornflowerBlue);
-
+        opengl.ClearColor(System.Drawing.Color.DarkGray);
         activeScene?.Render((float)deltaTime);
     }
 

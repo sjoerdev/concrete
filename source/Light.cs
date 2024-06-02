@@ -28,8 +28,8 @@ public class DirectionalLight : Light
 
 public class SpotLight : Light
 {
-    public float range = 10;
-    public float angle = 45;
+    public float range = 4;
+    public float angle = 30;
     public float softness = 0.5f;
 
     public override void Start()
