@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Drawing;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
@@ -8,7 +9,7 @@ using ImGuiNET;
 
 namespace GameEngine;
 
-class Engine
+unsafe class Engine
 {
     public static GL opengl;
     public static IWindow window;
@@ -19,6 +20,7 @@ class Engine
     public static List<Scene> scenes = [];
 
     public static Camera activeCamera = null;
+    public static Framebuffer framebuffer = null;
 
     public static List<DirectionalLight> directionalLights = [];
     public static List<PointLight> pointLights = [];
@@ -43,6 +45,10 @@ class Engine
         opengl = GL.GetApi(window);
         input = window.CreateInput();
         imgui = new ImGuiController(opengl, window, input);
+        framebuffer = new Framebuffer();
+
+        ImGui.GetIO().NativePtr->IniFilename = null;
+        ImGui.GetIO().ConfigFlags = ImGuiConfigFlags.DockingEnable;
 
         new Scene().SetActive();
 
@@ -66,12 +72,24 @@ class Engine
     public void Render(double deltaTime)
     {
         opengl.Enable(EnableCap.DepthTest);
+        opengl.ClearColor(Color.Black);
         opengl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        opengl.ClearColor(System.Drawing.Color.DarkGray);
-        activeScene?.Render((float)deltaTime);
 
-        ImGui.SetNextWindowPos(new Vector2(8, 8), ImGuiCond.Once);
-        ImGui.ShowDemoWindow();
+        ImGui.DockSpaceOverViewport();
+
+        ImGui.SetNextWindowPos(new Vector2(4, 4), ImGuiCond.Once);
+        ImGui.SetNextWindowSize(new Vector2(512, 256), ImGuiCond.Once);
+        ImGui.Begin("window", ImGuiWindowFlags.NoScrollbar);
+
+        framebuffer.Resize(ImGui.GetContentRegionAvail());
+        framebuffer.Enable();
+        framebuffer.Clear(Color.DarkGray);
+        activeScene?.Render((float)deltaTime);
+        framebuffer.Disable();
+        
+        ImGui.Image((nint)framebuffer.colorTexture, framebuffer.size, Vector2.UnitY, Vector2.UnitX);
+        
+        ImGui.End();
         imgui.Render();
     }
 

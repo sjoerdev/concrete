@@ -18,12 +18,13 @@ public class Camera : Component
 
     public override void Start()
     {
-        float aspect = (float)Engine.window.Size.X / (float)Engine.window.Size.Y;
-        proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI * fov / 180f, aspect, 0.1f, 1000f);
+        // do stuff
     }
 
     public override void Update(float deltaTime)
     {
+        float aspect = Engine.framebuffer.size.X / Engine.framebuffer.size.Y;
+        proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI * fov / 180f, aspect, 0.1f, 1000f);
         view = Matrix4x4.CreateLookAt(gameObject.transform.position, gameObject.transform.position + gameObject.transform.Forward(), gameObject.transform.Up());
         ApplyMovement(deltaTime);
     }
