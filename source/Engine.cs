@@ -1,8 +1,10 @@
+using System.Numerics;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
-using System.Numerics;
+using Silk.NET.OpenGL.Extensions.ImGui;
+using ImGuiNET;
 
 namespace GameEngine;
 
@@ -11,6 +13,7 @@ class Engine
     public static GL opengl;
     public static IWindow window;
     public static IInputContext input;
+    public static ImGuiController imgui;
     
     public static Scene activeScene = null;
     public static List<Scene> scenes = [];
@@ -39,12 +42,14 @@ class Engine
     {
         opengl = GL.GetApi(window);
         input = window.CreateInput();
+        imgui = new ImGuiController(opengl, window, input);
 
         new Scene().SetActive();
 
         var camera = new GameObject();
         camera.AddComponent<Camera>().SetActive();
         camera.AddComponent<SpotLight>();
+        camera.transform.position = new Vector3(0, 1, -2);
 
         var model = new GameObject();
         model.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
@@ -55,6 +60,7 @@ class Engine
     public void Update(double deltaTime)
     {
         activeScene?.Update((float)deltaTime);
+        imgui.Update((float)deltaTime);
     }
 
     public void Render(double deltaTime)
@@ -63,6 +69,10 @@ class Engine
         opengl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         opengl.ClearColor(System.Drawing.Color.DarkGray);
         activeScene?.Render((float)deltaTime);
+
+        ImGui.SetNextWindowPos(new Vector2(8, 8), ImGuiCond.Once);
+        ImGui.ShowDemoWindow();
+        imgui.Render();
     }
 
     public void Resize(Vector2D<int> size)
