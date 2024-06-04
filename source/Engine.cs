@@ -4,8 +4,7 @@ using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
-using Silk.NET.OpenGL.Extensions.ImGui;
-using ImGuiNET;
+using Hexa.NET.ImGui;
 
 namespace GameEngine;
 
@@ -14,7 +13,7 @@ unsafe class Engine
     public static GL opengl;
     public static IWindow window;
     public static IInputContext input;
-    public static ImGuiController imgui;
+    public static ImGuiController controller;
     
     public static Scene activeScene = null;
     public static List<Scene> scenes = [];
@@ -44,10 +43,10 @@ unsafe class Engine
     {
         opengl = GL.GetApi(window);
         input = window.CreateInput();
-        imgui = new ImGuiController(opengl, window, input);
+        controller = new ImGuiController(opengl, window, input);
         framebuffer = new Framebuffer();
-
-        ImGui.GetIO().NativePtr->IniFilename = null;
+        
+        ImGui.GetIO().Handle->IniFilename = null;
         ImGui.GetIO().ConfigFlags = ImGuiConfigFlags.DockingEnable;
 
         new Scene().SetActive();
@@ -66,7 +65,7 @@ unsafe class Engine
     public void Update(double deltaTime)
     {
         activeScene?.Update((float)deltaTime);
-        imgui.Update((float)deltaTime);
+        controller.Update((float)deltaTime);
     }
 
     public void Render(double deltaTime)
@@ -90,7 +89,8 @@ unsafe class Engine
         ImGui.Image((nint)framebuffer.colorTexture, framebuffer.size, Vector2.UnitY, Vector2.UnitX);
         
         ImGui.End();
-        imgui.Render();
+
+        controller.Render();
     }
 
     public void Resize(Vector2D<int> size)
