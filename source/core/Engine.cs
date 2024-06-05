@@ -25,6 +25,8 @@ unsafe class Engine
     public static List<PointLight> pointLights = [];
     public static List<SpotLight> spotLights = [];
 
+    bool dockbuilderInitialized = false;
+
     public Engine()
     {
         var options = WindowOptions.Default;
@@ -74,20 +76,33 @@ unsafe class Engine
         opengl.ClearColor(Color.Black);
         opengl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-        ImGui.DockSpaceOverViewport();
-
-        ImGui.SetNextWindowPos(new Vector2(4, 4), ImGuiCond.Once);
-        ImGui.SetNextWindowSize(new Vector2(512, 256), ImGuiCond.Once);
-        ImGui.Begin("window", ImGuiWindowFlags.NoScrollbar);
-
+        int dockspace = ImGui.DockSpaceOverViewport();
+        if (!dockbuilderInitialized)
+        {
+            int leftdock, rightdock = 0;
+            ImGui.DockBuilderSplitNode(dockspace, ImGuiDir.Left, 0.25f, &leftdock, &rightdock);
+            int topleftdock, bottomleftdock = 0;
+            ImGui.DockBuilderSplitNode(leftdock, ImGuiDir.Up, 0.5f, &bottomleftdock, &topleftdock);
+            ImGui.DockBuilderDockWindow("Scene", rightdock);
+            ImGui.DockBuilderDockWindow("Hierarchy", topleftdock);
+            ImGui.DockBuilderDockWindow("Inspector", bottomleftdock);
+            ImGui.DockBuilderFinish(dockspace);
+            dockbuilderInitialized = true;
+        }
+        
+        ImGui.Begin("Scene", ImGuiWindowFlags.NoScrollbar);
         framebuffer.Resize(ImGui.GetContentRegionAvail());
         framebuffer.Enable();
         framebuffer.Clear(Color.DarkGray);
         activeScene?.Render((float)deltaTime);
         framebuffer.Disable();
-        
         ImGui.Image((nint)framebuffer.colorTexture, framebuffer.size, Vector2.UnitY, Vector2.UnitX);
-        
+        ImGui.End();
+
+        ImGui.Begin("Hierarchy");
+        ImGui.End();
+
+        ImGui.Begin("Inspector");
         ImGui.End();
 
         controller.Render();
