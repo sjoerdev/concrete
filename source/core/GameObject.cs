@@ -10,15 +10,17 @@ public class GameObject
 
     public GameObject()
     {
-        name = new Random().Next(486734, 928472).ToString();
         transform = AddComponent<Transform>();
-        Engine.activeScene.gameObjects.Add(this);
+        var scene = Engine.activeScene;
+        scene.gameObjects.Add(this);
+        name = "GameObject_" + scene.gameObjects.Count.ToString();
     }
 
     public GameObject(Scene scene)
     {
         transform = AddComponent<Transform>();
         scene.gameObjects.Add(this);
+        name = "GameObject_" + scene.gameObjects.Count.ToString();
     }
 
     public T AddComponent<T>() where T : Component, new()

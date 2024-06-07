@@ -102,113 +102,135 @@ unsafe class Engine
         ImGui.End();
 
         ImGui.Begin("Hierarchy");
-        foreach (var gameObject in activeScene.gameObjects)
-        {
-            ImGui.PushID(gameObject.name);
-            bool nodeOpen = ImGui.TreeNode(gameObject.name);
-            if (ImGui.IsItemClicked()) selectedGameObject = gameObject;
-
-            if (nodeOpen)
-            {
-                /*
-                foreach (var child in gameObject.transform.children)
-                {
-                    ImGui.PushID(child.Name);
-                    bool childNodeOpen = ImGui.TreeNode(child.Name);
-                    if (ImGui.IsItemClicked())
-                    {
-                        selectedGameObject = child.gameObject;
-                    }
-                    if (childNodeOpen)
-                    {
-                        // RenderGameObjectNode(child);
-                        ImGui.TreePop();
-                    }
-                    ImGui.PopID();
-                }
-                */
-                ImGui.TreePop();
-            }
-            ImGui.PopID();
-        }
+        foreach (var gameObject in activeScene.gameObjects) DrawHierarchyMember(gameObject);
         ImGui.End();
 
         ImGui.Begin("Inspector");
         if (selectedGameObject != null)
         {
-            ImGui.Text($"Selected: {selectedGameObject.name}");
+            ImGui.Text(selectedGameObject.name.ToString());
             ImGui.Separator();
-            foreach (var component in selectedGameObject.components) DrawInspectorComponent(component);
+            foreach (var component in selectedGameObject.components) DrawComponent(component);
         }
         ImGui.End();
-            
+        
         controller.Render();
     }
 
-    public void DrawInspectorComponent(Component component)
+    public void DrawHierarchyMember(GameObject gameObject)
     {
-        ImGui.Text($"Component: {component.GetType().Name}");
+        ImGui.PushID(gameObject.name);
+        bool nodeOpen = ImGui.TreeNode(gameObject.name);
+        if (ImGui.IsItemClicked()) selectedGameObject = gameObject;
 
-        var type = component.GetType();
-        var publicFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-        var publicProperties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-        foreach (var field in publicFields)
+        if (nodeOpen)
         {
-            var fieldType = field.FieldType;
-            var fieldName = field.Name;
-            var fieldValue = field.GetValue(component);
-
-            if (fieldType == typeof(int))
+            /*
+            foreach (var child in gameObject.transform.children)
             {
-                int value = (int)fieldValue;
-                if (ImGui.InputInt(fieldName, ref value)) field.SetValue(component, value);
+                ImGui.PushID(child.Name);
+                bool childNodeOpen = ImGui.TreeNode(child.Name);
+                if (ImGui.IsItemClicked())
+                {
+                    selectedGameObject = child.gameObject;
+                }
+                if (childNodeOpen)
+                {
+                    // RenderGameObjectNode(child);
+                    ImGui.TreePop();
+                }
+                ImGui.PopID();
             }
-            else if (fieldType == typeof(float))
-            {
-                float value = (float)fieldValue;
-                if (ImGui.InputFloat(fieldName, ref value)) field.SetValue(component, value);
-            }
-            else if (fieldType == typeof(string))
-            {
-                string value = (string)fieldValue;
-                if (ImGui.InputText(fieldName, ref value, 100)) field.SetValue(component, value);
-            }
-            else if (fieldType == typeof(Vector3))
-            {
-                Vector3 value = (Vector3)fieldValue;
-                if (ImGui.InputFloat3(fieldName, ref value)) field.SetValue(component, value);
-            }
+            */
+            ImGui.TreePop();
         }
+        ImGui.PopID();
+    }
 
-        foreach (var property in publicProperties)
+    public void DrawComponent(Component component)
+    {
+        var type = component.GetType();
+        ImGui.Text(type.Name);
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+        foreach (var field in fields) DrawField(field, component);
+        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanRead && p.CanWrite);
+        foreach (var property in properties) DrawProperty(property, component);
+        ImGui.Separator();
+    }
+
+    private void DrawField(FieldInfo field, Component component)
+    {
+        var type = field.FieldType;
+        var name = field.Name;
+        var curvalue = field.GetValue(component);
+
+        if (type == typeof(int))
         {
-            if (!property.CanRead || !property.CanWrite) continue;
+            int value = (int)curvalue;
+            if (ImGui.DragInt(name, ref value)) field.SetValue(component, value);
+        }
+        else if (type == typeof(float))
+        {
+            float value = (float)curvalue;
+            if (ImGui.DragFloat(name, ref value)) field.SetValue(component, value);
+        }
+        else if (type == typeof(string))
+        {
+            string value = (string)curvalue;
+            if (ImGui.InputText(name, ref value, 100)) field.SetValue(component, value);
+        }
+        else if (type == typeof(Vector3))
+        {
+            Vector3 value = (Vector3)curvalue;
+            if (ImGui.DragFloat3(name, ref value)) field.SetValue(component, value);
+        }
+        else if (type == typeof(Vector2))
+        {
+            Vector2 value = (Vector2)curvalue;
+            if (ImGui.DragFloat2(name, ref value)) field.SetValue(component, value);
+        }
+        else if (type == typeof(bool))
+        {
+            bool value = (bool)curvalue;
+            if (ImGui.Checkbox(name, ref value)) field.SetValue(component, value);
+        }
+    }
 
-            var propertyType = property.PropertyType;
-            var propertyName = property.Name;
-            var propertyValue = property.GetValue(component);
+    private void DrawProperty(PropertyInfo property, Component component)
+    {
+        var type = property.PropertyType;
+        var name = property.Name;
+        var curvalue = property.GetValue(component);
 
-            if (propertyType == typeof(int))
-            {
-                int value = (int)propertyValue;
-                if (ImGui.InputInt(propertyName, ref value)) property.SetValue(component, value);
-            }
-            else if (propertyType == typeof(float))
-            {
-                float value = (float)propertyValue;
-                if (ImGui.InputFloat(propertyName, ref value)) property.SetValue(component, value);
-            }
-            else if (propertyType == typeof(string))
-            {
-                string value = (string)propertyValue;
-                if (ImGui.InputText(propertyName, ref value, 100)) property.SetValue(component, value);
-            }
-            else if (propertyType == typeof(Vector3))
-            {
-                Vector3 value = (Vector3)propertyValue;
-                if (ImGui.InputFloat3(propertyName, ref value)) property.SetValue(component, value);
-            }
+        if (type == typeof(int))
+        {
+            int value = (int)curvalue;
+            if (ImGui.InputInt(name, ref value)) property.SetValue(component, value);
+        }
+        else if (type == typeof(float))
+        {
+            float value = (float)curvalue;
+            if (ImGui.InputFloat(name, ref value)) property.SetValue(component, value);
+        }
+        else if (type == typeof(string))
+        {
+            string value = (string)curvalue;
+            if (ImGui.InputText(name, ref value, 100)) property.SetValue(component, value);
+        }
+        else if (type == typeof(Vector3))
+        {
+            Vector3 value = (Vector3)curvalue;
+            if (ImGui.InputFloat3(name, ref value)) property.SetValue(component, value);
+        }
+        else if (type == typeof(Vector2))
+        {
+            Vector2 value = (Vector2)curvalue;
+            if (ImGui.DragFloat2(name, ref value)) property.SetValue(component, value);
+        }
+        else if (type == typeof(bool))
+        {
+            bool value = (bool)curvalue;
+            if (ImGui.Checkbox(name, ref value)) property.SetValue(component, value);
         }
     }
     
