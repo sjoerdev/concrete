@@ -4,11 +4,13 @@ namespace GameEngine;
 
 public class GameObject
 {
+    public string name;
     public Transform transform;
     public List<Component> components = [];
 
     public GameObject()
     {
+        name = new Random().Next(486734, 928472).ToString();
         transform = AddComponent<Transform>();
         Engine.activeScene.gameObjects.Add(this);
     }

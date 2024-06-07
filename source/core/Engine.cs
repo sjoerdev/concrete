@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Drawing;
+using System.Reflection;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
@@ -26,6 +27,7 @@ unsafe class Engine
     public static List<SpotLight> spotLights = [];
 
     bool dockbuilderInitialized = false;
+    GameObject selectedGameObject = null;
 
     public Engine()
     {
@@ -100,14 +102,116 @@ unsafe class Engine
         ImGui.End();
 
         ImGui.Begin("Hierarchy");
+        foreach (var gameObject in activeScene.gameObjects)
+        {
+            ImGui.PushID(gameObject.name);
+            bool nodeOpen = ImGui.TreeNode(gameObject.name);
+            if (ImGui.IsItemClicked()) selectedGameObject = gameObject;
+
+            if (nodeOpen)
+            {
+                /*
+                foreach (var child in gameObject.transform.children)
+                {
+                    ImGui.PushID(child.Name);
+                    bool childNodeOpen = ImGui.TreeNode(child.Name);
+                    if (ImGui.IsItemClicked())
+                    {
+                        selectedGameObject = child.gameObject;
+                    }
+                    if (childNodeOpen)
+                    {
+                        // RenderGameObjectNode(child);
+                        ImGui.TreePop();
+                    }
+                    ImGui.PopID();
+                }
+                */
+                ImGui.TreePop();
+            }
+            ImGui.PopID();
+        }
         ImGui.End();
 
         ImGui.Begin("Inspector");
+        if (selectedGameObject != null)
+        {
+            ImGui.Text($"Selected: {selectedGameObject.name}");
+            ImGui.Separator();
+            foreach (var component in selectedGameObject.components) DrawInspectorComponent(component);
+        }
         ImGui.End();
-
+            
         controller.Render();
     }
 
+    public void DrawInspectorComponent(Component component)
+    {
+        ImGui.Text($"Component: {component.GetType().Name}");
+
+        var type = component.GetType();
+        var publicFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+        var publicProperties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        foreach (var field in publicFields)
+        {
+            var fieldType = field.FieldType;
+            var fieldName = field.Name;
+            var fieldValue = field.GetValue(component);
+
+            if (fieldType == typeof(int))
+            {
+                int value = (int)fieldValue;
+                if (ImGui.InputInt(fieldName, ref value)) field.SetValue(component, value);
+            }
+            else if (fieldType == typeof(float))
+            {
+                float value = (float)fieldValue;
+                if (ImGui.InputFloat(fieldName, ref value)) field.SetValue(component, value);
+            }
+            else if (fieldType == typeof(string))
+            {
+                string value = (string)fieldValue;
+                if (ImGui.InputText(fieldName, ref value, 100)) field.SetValue(component, value);
+            }
+            else if (fieldType == typeof(Vector3))
+            {
+                Vector3 value = (Vector3)fieldValue;
+                if (ImGui.InputFloat3(fieldName, ref value)) field.SetValue(component, value);
+            }
+        }
+
+        foreach (var property in publicProperties)
+        {
+            if (!property.CanRead || !property.CanWrite) continue;
+
+            var propertyType = property.PropertyType;
+            var propertyName = property.Name;
+            var propertyValue = property.GetValue(component);
+
+            if (propertyType == typeof(int))
+            {
+                int value = (int)propertyValue;
+                if (ImGui.InputInt(propertyName, ref value)) property.SetValue(component, value);
+            }
+            else if (propertyType == typeof(float))
+            {
+                float value = (float)propertyValue;
+                if (ImGui.InputFloat(propertyName, ref value)) property.SetValue(component, value);
+            }
+            else if (propertyType == typeof(string))
+            {
+                string value = (string)propertyValue;
+                if (ImGui.InputText(propertyName, ref value, 100)) property.SetValue(component, value);
+            }
+            else if (propertyType == typeof(Vector3))
+            {
+                Vector3 value = (Vector3)propertyValue;
+                if (ImGui.InputFloat3(propertyName, ref value)) property.SetValue(component, value);
+            }
+        }
+    }
+    
     public void Resize(Vector2D<int> size)
     {
         opengl.Viewport(size);
