@@ -58,10 +58,11 @@ unsafe class Engine
         var camera = new GameObject();
         camera.AddComponent<Camera>().SetActive();
         camera.AddComponent<SpotLight>();
-        camera.transform.position = new Vector3(0, 1, -2);
+        camera.transform.localPosition = new Vector3(0, 1, -2);
 
         var model = new GameObject();
         model.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
+        model.transform.parent = camera.transform;
         
         activeScene?.Start();
     }
@@ -102,7 +103,7 @@ unsafe class Engine
         ImGui.End();
 
         ImGui.Begin("Hierarchy");
-        foreach (var gameObject in activeScene.gameObjects) DrawHierarchyMember(gameObject);
+        foreach (var gameObject in activeScene.gameObjects) if (gameObject.transform.parent == null) DrawHierarchyMember(gameObject);
         ImGui.End();
 
         ImGui.Begin("Inspector");
@@ -122,28 +123,7 @@ unsafe class Engine
         ImGui.PushID(gameObject.name);
         bool nodeOpen = ImGui.TreeNode(gameObject.name);
         if (ImGui.IsItemClicked()) selectedGameObject = gameObject;
-
-        if (nodeOpen)
-        {
-            /*
-            foreach (var child in gameObject.transform.children)
-            {
-                ImGui.PushID(child.Name);
-                bool childNodeOpen = ImGui.TreeNode(child.Name);
-                if (ImGui.IsItemClicked())
-                {
-                    selectedGameObject = child.gameObject;
-                }
-                if (childNodeOpen)
-                {
-                    // RenderGameObjectNode(child);
-                    ImGui.TreePop();
-                }
-                ImGui.PopID();
-            }
-            */
-            ImGui.TreePop();
-        }
+        if (nodeOpen) foreach (var child in gameObject.transform.currentChildren) DrawHierarchyMember(child.gameObject);
         ImGui.PopID();
     }
 

@@ -44,9 +44,11 @@ public class Scene
                 if (type == "Transform")
                 {
                     var transform = gameObject.GetComponent<Transform>();
+                    /*
                     transform.position = ParseVector3(xmlComponent.Element("position").Value);
                     transform.rotation = ParseVector3(xmlComponent.Element("rotation").Value);
                     transform.scale = ParseVector3(xmlComponent.Element("scale").Value);
+                    */
                 }
                 else if (type == "MeshRenderer")
                 {

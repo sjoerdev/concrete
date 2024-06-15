@@ -25,7 +25,7 @@ public class Camera : Component
     {
         float aspect = Engine.framebuffer.size.X / Engine.framebuffer.size.Y;
         proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI * fov / 180f, aspect, 0.1f, 1000f);
-        view = Matrix4x4.CreateLookAt(gameObject.transform.position, gameObject.transform.position + gameObject.transform.Forward(), gameObject.transform.Up());
+        view = Matrix4x4.CreateLookAt(gameObject.transform.worldPosition, gameObject.transform.worldPosition + gameObject.transform.Forward(), gameObject.transform.Up());
         ApplyMovement(deltaTime);
     }
 
@@ -46,7 +46,7 @@ public class Camera : Component
         if (keyboard.IsKeyPressed(Key.Space)) movedir += gameObject.transform.Up();
         if (keyboard.IsKeyPressed(Key.ControlLeft)) movedir -= gameObject.transform.Up();
         if (keyboard.IsKeyPressed(Key.ShiftLeft)) movedir *= 2;
-        gameObject.transform.position += movedir * deltaTime;
+        gameObject.transform.localPosition += movedir * deltaTime;
 
         // change rotation
         var mouse = Engine.input.Mice[0];
@@ -54,7 +54,7 @@ public class Camera : Component
         if (mouse.IsButtonPressed(MouseButton.Right))
         {
             var mouseDelta = lastMousePos - mouse.Position;
-            gameObject.transform.rotation += new Vector3(-mouseDelta.Y, mouseDelta.X, 0) * deltaTime * lookSpeed;
+            gameObject.transform.localEulerAngles += new Vector3(-mouseDelta.Y, mouseDelta.X, 0) * deltaTime * lookSpeed;
         }
         lastMousePos = mouse.Position;
     }

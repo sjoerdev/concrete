@@ -33,7 +33,7 @@ public unsafe class MeshRenderer : Component
     public override void Render(float deltaTime)
     {
         shader.Use();
-        shader.SetMatrix4("model", gameObject.transform.GetModelMatrix());
+        shader.SetMatrix4("model", gameObject.transform.GetWorldModelMatrix());
         shader.SetMatrix4("view", Engine.activeCamera.view);
         shader.SetMatrix4("proj", Engine.activeCamera.proj);
         shader.SetTexture("tex", mainTexture, 0);
@@ -60,7 +60,7 @@ public unsafe class MeshRenderer : Component
         for (int i = 0; i < pointLights.Count; i++)
         {
             var light = pointLights[i];
-            shader.SetVector3($"pointLights[{i}].position", light.gameObject.transform.position);
+            shader.SetVector3($"pointLights[{i}].position", light.gameObject.transform.worldPosition);
             shader.SetFloat($"pointLights[{i}].brightness", light.brightness);
             shader.SetVector3($"pointLights[{i}].color", light.color);
             shader.SetFloat($"pointLights[{i}].range", light.range);
@@ -70,7 +70,7 @@ public unsafe class MeshRenderer : Component
         for (int i = 0; i < spotLights.Count; i++)
         {
             var light = spotLights[i];
-            shader.SetVector3($"spotLights[{i}].position", light.gameObject.transform.position);
+            shader.SetVector3($"spotLights[{i}].position", light.gameObject.transform.worldPosition);
             shader.SetVector3($"spotLights[{i}].direction", light.gameObject.transform.Forward());
             shader.SetFloat($"spotLights[{i}].brightness", light.brightness);
             shader.SetVector3($"spotLights[{i}].color", light.color);
@@ -80,7 +80,7 @@ public unsafe class MeshRenderer : Component
         }
 
         // set view position
-        shader.SetVector3("viewpos", Engine.activeCamera.gameObject.transform.position);
+        shader.SetVector3("viewpos", Engine.activeCamera.gameObject.transform.worldPosition);
     }
 
     private void RenderMesh(Mesh meshToRender)
