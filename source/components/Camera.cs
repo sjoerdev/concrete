@@ -50,7 +50,7 @@ public class Camera : Component
 
         // change rotation
         var mouse = Engine.input.Mice[0];
-        var lookSpeed = 0.4f;
+        var lookSpeed = 30f;
         if (mouse.IsButtonPressed(MouseButton.Right))
         {
             var mouseDelta = lastMousePos - mouse.Position;

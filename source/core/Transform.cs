@@ -5,7 +5,7 @@ namespace GameEngine
     public class Transform : Component
     {
         private Transform currentParent = null;
-        public List<Transform> currentChildren = [];
+        public List<Transform> children = [];
 
         private Vector3 currentLocalPosition = Vector3.Zero;
         private Vector3 currentWorldPosition = Vector3.Zero;
@@ -16,15 +16,18 @@ namespace GameEngine
         private Vector3 currentLocalScale = Vector3.One;
         private Vector3 currentWorldScale = Vector3.One;
 
+        private readonly float toDegrees = 180.0f / MathF.PI;
+        private readonly float toRadians = MathF.PI / 180.0f;
+
         public Transform parent
         {
             get => currentParent;
             set
             {
                 if (currentParent == value) return;
-                currentParent?.currentChildren.Remove(this);
+                currentParent?.children.Remove(this);
                 currentParent = value;
-                currentParent?.currentChildren.Add(this);
+                currentParent?.children.Add(this);
                 UpdateLocalPosition();
                 UpdateLocalRotation();
                 UpdateLocalScale();
@@ -85,7 +88,7 @@ namespace GameEngine
             set
             {
                 currentLocalEulerAngles = value;
-                currentLocalQuaternion = Quaternion.CreateFromYawPitchRoll(value.Y, value.X, value.Z);
+                currentLocalQuaternion = Quaternion.CreateFromYawPitchRoll(value.Y * toRadians, value.X * toRadians, value.Z * toRadians);
                 UpdateWorldRotation();
             }
         }
@@ -100,7 +103,7 @@ namespace GameEngine
             set
             {
                 currentWorldEulerAngles = value;
-                currentWorldQuaternion = Quaternion.CreateFromYawPitchRoll(value.Y, value.X, value.Z);
+                currentWorldQuaternion = Quaternion.CreateFromYawPitchRoll(value.Y * toRadians, value.X * toRadians, value.Z * toRadians);
                 UpdateLocalRotation();
             }
         }
@@ -181,23 +184,23 @@ namespace GameEngine
             return scale * rotation * translation;
         }
 
-        private Vector3 GetEulerAnglesFromQuaternion(Quaternion q)
+        private Vector3 GetEulerAnglesFromQuaternion(Quaternion quaternion)
         {
             Vector3 angles;
 
-            float sinr_cosp = 2 * (q.W * q.X + q.Y * q.Z);
-            float cosr_cosp = 1 - 2 * (q.X * q.X + q.Y * q.Y);
-            angles.X = MathF.Atan2(sinr_cosp, cosr_cosp);
+            float sinr = 2 * (quaternion.W * quaternion.X + quaternion.Y * quaternion.Z);
+            float cosr = 1 - 2 * (quaternion.X * quaternion.X + quaternion.Y * quaternion.Y);
+            angles.X = MathF.Atan2(sinr, cosr);
 
-            float sinp = 2 * (q.W * q.Y - q.Z * q.X);
+            float sinp = 2 * (quaternion.W * quaternion.Y - quaternion.Z * quaternion.X);
             if (MathF.Abs(sinp) >= 1) angles.Y = MathF.CopySign(MathF.PI / 2, sinp);
             else angles.Y = MathF.Asin(sinp);
 
-            float siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
-            float cosy_cosp = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
-            angles.Z = MathF.Atan2(siny_cosp, cosy_cosp);
+            float siny = 2 * (quaternion.W * quaternion.Z + quaternion.X * quaternion.Y);
+            float cosy = 1 - 2 * (quaternion.Y * quaternion.Y + quaternion.Z * quaternion.Z);
+            angles.Z = MathF.Atan2(siny, cosy);
 
-            return angles;
+            return angles * toDegrees;
         }
     }
 }

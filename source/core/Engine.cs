@@ -124,14 +124,14 @@ unsafe class Engine
 
         var flags = ImGuiTreeNodeFlags.OpenOnArrow;
 
-        if (gameObject.transform.currentChildren.Count == 0) flags |= ImGuiTreeNodeFlags.Leaf;
+        if (gameObject.transform.children.Count == 0) flags |= ImGuiTreeNodeFlags.Leaf;
         if (selectedGameObject == gameObject) flags |= ImGuiTreeNodeFlags.Selected;
 
         bool open = ImGui.TreeNodeEx(gameObject.name, flags);
 
         if (ImGui.IsItemClicked() && !ImGui.IsItemToggledOpen()) selectedGameObject = gameObject;
 
-        if (open) foreach (var child in gameObject.transform.currentChildren) DrawHierarchyMember(child.gameObject);
+        if (open) foreach (var child in gameObject.transform.children) DrawHierarchyMember(child.gameObject);
 
         ImGui.TreePop();
 
