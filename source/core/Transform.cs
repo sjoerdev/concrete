@@ -146,7 +146,7 @@ namespace GameEngine
 
         public void UpdateWorldRotation()
         {
-            if (currentParent != null) currentWorldQuaternion = currentLocalQuaternion * currentParent.worldQuaternion;
+            if (currentParent != null) currentWorldQuaternion = currentParent.worldQuaternion * currentLocalQuaternion;
             else currentWorldQuaternion = currentLocalQuaternion;
             currentWorldEulerAngles = GetEulerAnglesFromQuaternion(currentWorldQuaternion);
         }
