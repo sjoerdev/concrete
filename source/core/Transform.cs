@@ -46,11 +46,7 @@ namespace GameEngine
 
         public Vector3 worldPosition
         {
-            get
-            {
-                UpdateWorldPosition();
-                return currentWorldPosition;
-            }
+            get => currentWorldPosition;
             set
             {
                 currentWorldPosition = value;
@@ -70,11 +66,7 @@ namespace GameEngine
 
         public Quaternion worldQuaternion
         {
-            get
-            {
-                UpdateWorldRotation();
-                return currentWorldQuaternion;
-            }
+            get => currentWorldQuaternion;
             set
             {
                 currentWorldQuaternion = value;
@@ -95,11 +87,7 @@ namespace GameEngine
 
         public Vector3 worldEulerAngles
         {
-            get
-            {
-                UpdateWorldRotation();
-                return currentWorldEulerAngles;
-            }
+            get => currentWorldEulerAngles;
             set
             {
                 currentWorldEulerAngles = value;
@@ -120,11 +108,7 @@ namespace GameEngine
 
         public Vector3 worldScale
         {
-            get
-            {
-                UpdateWorldScale();
-                return currentWorldScale;
-            }
+            get => currentWorldScale;
             set
             {
                 currentWorldScale = value;
@@ -136,12 +120,14 @@ namespace GameEngine
         {
             if (currentParent != null) currentWorldPosition = Vector3.Transform(currentLocalPosition, currentParent.worldQuaternion) * currentParent.worldScale + currentParent.worldPosition;
             else currentWorldPosition = currentLocalPosition;
+            foreach (var child in children) child.UpdateWorldPosition();
         }
 
         private void UpdateLocalPosition()
         {
             if (currentParent != null) currentLocalPosition = Vector3.Transform(currentWorldPosition - currentParent.worldPosition, Quaternion.Inverse(currentParent.worldQuaternion)) / currentParent.worldScale;
             else currentLocalPosition = currentWorldPosition;
+            foreach (var child in children) child.UpdateWorldPosition();
         }
 
         public void UpdateWorldRotation()
@@ -149,6 +135,7 @@ namespace GameEngine
             if (currentParent != null) currentWorldQuaternion = currentParent.worldQuaternion * currentLocalQuaternion;
             else currentWorldQuaternion = currentLocalQuaternion;
             currentWorldEulerAngles = GetEulerAnglesFromQuaternion(currentWorldQuaternion);
+            foreach (var child in children) child.UpdateWorldRotation();
         }
 
         private void UpdateLocalRotation()
@@ -156,18 +143,21 @@ namespace GameEngine
             if (currentParent != null) currentLocalQuaternion = currentWorldQuaternion * Quaternion.Inverse(currentParent.worldQuaternion);
             else currentLocalQuaternion = currentWorldQuaternion;
             currentLocalEulerAngles = GetEulerAnglesFromQuaternion(currentLocalQuaternion);
+            foreach (var child in children) child.UpdateWorldRotation();
         }
 
         public void UpdateWorldScale()
         {
             if (currentParent != null) currentWorldScale = currentLocalScale * currentParent.worldScale;
             else currentWorldScale = currentLocalScale;
+            foreach (var child in children) child.UpdateWorldScale();
         }
 
         private void UpdateLocalScale()
         {
             if (currentParent != null) currentLocalScale = currentWorldScale / currentParent.worldScale;
             else currentLocalScale = currentWorldScale;
+            foreach (var child in children) child.UpdateWorldScale();
         }
 
         public Vector3 Forward() => Vector3.Transform(Vector3.UnitZ, worldQuaternion);
