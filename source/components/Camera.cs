@@ -23,10 +23,10 @@ public class Camera : Component
 
     public override void Update(float deltaTime)
     {
+        ApplyMovement(deltaTime);
         float aspect = Engine.framebuffer.size.X / Engine.framebuffer.size.Y;
         proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI * fov / 180f, aspect, 0.1f, 1000f);
         view = Matrix4x4.CreateLookAt(gameObject.transform.worldPosition, gameObject.transform.worldPosition + gameObject.transform.Forward(), gameObject.transform.Up());
-        ApplyMovement(deltaTime);
     }
 
     public override void Render(float deltaTime)
