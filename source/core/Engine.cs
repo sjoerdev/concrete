@@ -196,12 +196,12 @@ unsafe class Engine
         if (type == typeof(int))
         {
             int value = (int)curvalue;
-            if (ImGui.InputInt(name, ref value)) property.SetValue(component, value);
+            if (ImGui.DragInt(name, ref value)) property.SetValue(component, value);
         }
         else if (type == typeof(float))
         {
             float value = (float)curvalue;
-            if (ImGui.InputFloat(name, ref value)) property.SetValue(component, value);
+            if (ImGui.DragFloat(name, ref value)) property.SetValue(component, value);
         }
         else if (type == typeof(string))
         {
@@ -211,7 +211,7 @@ unsafe class Engine
         else if (type == typeof(Vector3))
         {
             Vector3 value = (Vector3)curvalue;
-            if (ImGui.InputFloat3(name, ref value)) property.SetValue(component, value);
+            if (ImGui.DragFloat3(name, ref value)) property.SetValue(component, value);
         }
         else if (type == typeof(Vector2))
         {
