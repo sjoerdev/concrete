@@ -50,11 +50,11 @@ public class Camera : Component
 
         // change rotation
         var mouse = Engine.input.Mice[0];
-        var lookSpeed = 30f;
+        var lookSpeed = 0.12f;
         if (mouse.IsButtonPressed(MouseButton.Right))
         {
             var mouseDelta = lastMousePos - mouse.Position;
-            gameObject.transform.localEulerAngles += new Vector3(-mouseDelta.Y, mouseDelta.X, 0) * deltaTime * lookSpeed;
+            gameObject.transform.localEulerAngles += new Vector3(-mouseDelta.Y, mouseDelta.X, 0) * lookSpeed;
         }
         lastMousePos = mouse.Position;
     }
