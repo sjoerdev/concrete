@@ -78,7 +78,7 @@ unsafe class Engine
         opengl.ClearColor(Color.Black);
         opengl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-        int dockspace = ImGui.DockSpaceOverViewport();
+        int dockspace = ImGui.DockSpaceOverViewport((ImGuiDockNodeFlags)ImGuiDockNodeFlagsPrivate.NoWindowMenuButton);
         if (!dockbuilderInitialized)
         {
             int leftdock, rightdock = 0;
@@ -103,6 +103,17 @@ unsafe class Engine
 
         ImGui.Begin("Hierarchy");
         foreach (var gameObject in activeScene.gameObjects) if (gameObject.transform.parent == null) DrawHierarchyMember(gameObject);
+        ImGui.InvisibleButton("", ImGui.GetContentRegionAvail());
+        if (ImGui.BeginDragDropTarget())
+        {
+            var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
+            if (!payload.IsNull)
+            {
+                var dragged = activeScene.gameObjects[*(int*)payload.Data];
+                if (dragged != null) dragged.transform.parent = null;
+            }
+            ImGui.EndDragDropTarget();
+        }
         ImGui.End();
 
         ImGui.Begin("Inspector");
@@ -117,23 +128,39 @@ unsafe class Engine
         controller.Render();
     }
 
-    public void DrawHierarchyMember(GameObject gameObject)
+    public unsafe void DrawHierarchyMember(GameObject gameObject)
     {
-        ImGui.PushID(gameObject.name);
+        int index = activeScene.gameObjects.IndexOf(gameObject);
+
+        ImGui.PushID(index);
 
         var flags = ImGuiTreeNodeFlags.OpenOnArrow;
-
         if (gameObject.transform.children.Count == 0) flags |= ImGuiTreeNodeFlags.Leaf;
         if (selectedGameObject == gameObject) flags |= ImGuiTreeNodeFlags.Selected;
-
         bool open = ImGui.TreeNodeEx(gameObject.name, flags);
-
         if (ImGui.IsItemClicked() && !ImGui.IsItemToggledOpen()) selectedGameObject = gameObject;
+
+        if (ImGui.BeginDragDropSource())
+        {
+            ImGui.SetDragDropPayload(nameof(GameObject), &index, sizeof(int));
+            ImGui.Text(gameObject.name);
+            ImGui.EndDragDropSource();
+        }
+
+        if (ImGui.BeginDragDropTarget())
+        {
+            var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
+            if (!payload.IsNull)
+            {
+                var dragged = activeScene.gameObjects[*(int*)payload.Data];
+                if (dragged != null && !dragged.transform.children.Contains(gameObject.transform)) dragged.transform.parent = gameObject.transform;
+            }
+            ImGui.EndDragDropTarget();
+        }
 
         if (open) foreach (var child in gameObject.transform.children) DrawHierarchyMember(child.gameObject);
 
         ImGui.TreePop();
-
         ImGui.PopID();
     }
 
