@@ -62,7 +62,6 @@ unsafe class Engine
 
         var model = new GameObject();
         model.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
-        model.transform.parent = camera.transform;
         
         activeScene?.Start();
     }
@@ -163,7 +162,7 @@ unsafe class Engine
         else if (type == typeof(float))
         {
             float value = (float)curvalue;
-            if (ImGui.DragFloat(name, ref value)) field.SetValue(component, value);
+            if (ImGui.DragFloat(name, ref value, 0.1f)) field.SetValue(component, value);
         }
         else if (type == typeof(string))
         {
@@ -173,12 +172,12 @@ unsafe class Engine
         else if (type == typeof(Vector3))
         {
             Vector3 value = (Vector3)curvalue;
-            if (ImGui.DragFloat3(name, ref value)) field.SetValue(component, value);
+            if (ImGui.DragFloat3(name, ref value, 0.1f)) field.SetValue(component, value);
         }
         else if (type == typeof(Vector2))
         {
             Vector2 value = (Vector2)curvalue;
-            if (ImGui.DragFloat2(name, ref value)) field.SetValue(component, value);
+            if (ImGui.DragFloat2(name, ref value, 0.1f)) field.SetValue(component, value);
         }
         else if (type == typeof(bool))
         {
@@ -201,7 +200,7 @@ unsafe class Engine
         else if (type == typeof(float))
         {
             float value = (float)curvalue;
-            if (ImGui.DragFloat(name, ref value)) property.SetValue(component, value);
+            if (ImGui.DragFloat(name, ref value, 0.1f)) property.SetValue(component, value);
         }
         else if (type == typeof(string))
         {
@@ -211,12 +210,12 @@ unsafe class Engine
         else if (type == typeof(Vector3))
         {
             Vector3 value = (Vector3)curvalue;
-            if (ImGui.DragFloat3(name, ref value)) property.SetValue(component, value);
+            if (ImGui.DragFloat3(name, ref value, 0.1f)) property.SetValue(component, value);
         }
         else if (type == typeof(Vector2))
         {
             Vector2 value = (Vector2)curvalue;
-            if (ImGui.DragFloat2(name, ref value)) property.SetValue(component, value);
+            if (ImGui.DragFloat2(name, ref value, 0.1f)) property.SetValue(component, value);
         }
         else if (type == typeof(bool))
         {
