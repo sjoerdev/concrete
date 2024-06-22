@@ -119,7 +119,7 @@ unsafe class Engine
         ImGui.Begin("Inspector");
         if (selectedGameObject != null)
         {
-            ImGui.Text(selectedGameObject.name.ToString());
+            ImGui.InputText("", ref selectedGameObject.name, 100);
             ImGui.Separator();
             foreach (var component in selectedGameObject.components) DrawComponent(component);
         }
@@ -167,12 +167,13 @@ unsafe class Engine
     public void DrawComponent(Component component)
     {
         var type = component.GetType();
-        ImGui.Text(type.Name);
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-        foreach (var field in fields) DrawField(field, component);
-        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanRead && p.CanWrite);
-        foreach (var property in properties) DrawProperty(property, component);
-        ImGui.Separator();
+        if (ImGui.CollapsingHeader(type.Name))
+        {
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var field in fields) DrawField(field, component);
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanRead && p.CanWrite);
+            foreach (var property in properties) DrawProperty(property, component);
+        }
     }
 
     private void DrawField(FieldInfo field, Component component)
