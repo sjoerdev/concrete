@@ -4,26 +4,28 @@ namespace GameEngine;
 
 public class GameObject
 {
+    public int id;
     public string name;
     public bool enabled;
     public Transform transform;
     public List<Component> components = [];
 
-    public GameObject()
+    public GameObject(Scene scene = null)
     {
-        transform = AddComponent<Transform>();
-        var scene = Engine.activeScene;
+        if (scene == null) scene = Engine.activeScene;
         scene.gameObjects.Add(this);
+        transform = AddComponent<Transform>();
+        id = GenerateID();
         name = "GameObject_" + scene.gameObjects.Count.ToString();
         enabled = true;
     }
 
-    public GameObject(Scene scene)
+    public int GenerateID()
     {
-        transform = AddComponent<Transform>();
-        scene.gameObjects.Add(this);
-        name = "GameObject_" + scene.gameObjects.Count.ToString();
-        enabled = true;
+        var random = new Random();
+        string digits = "";
+        for (int i = 0; i < 8; i++) digits += random.Next(0, 10).ToString();
+        return int.Parse(digits);
     }
 
     public T AddComponent<T>() where T : Component, new()

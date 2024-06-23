@@ -111,7 +111,7 @@ unsafe class Engine
             var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
             if (!payload.IsNull)
             {
-                var dragged = activeScene.gameObjects[*(int*)payload.Data];
+                var dragged = activeScene.FindGameObject(*(int*)payload.Data);
                 if (dragged != null) dragged.transform.parent = null;
             }
             ImGui.EndDragDropTarget();
@@ -121,14 +121,12 @@ unsafe class Engine
         ImGui.Begin("Inspector");
         if (selectedGameObject != null)
         {
-            ImGui.PushID(activeScene.gameObjects.IndexOf(selectedGameObject));
+            ImGui.PushID(selectedGameObject.id);
             ImGui.Checkbox("", ref selectedGameObject.enabled);
             ImGui.PopID();
-
             ImGui.SameLine();
             ImGui.InputText("", ref selectedGameObject.name, 100);
             ImGui.Separator();
-
             foreach (var component in selectedGameObject.components) DrawComponent(component);
         }
         ImGui.End();
@@ -138,9 +136,8 @@ unsafe class Engine
 
     public unsafe void DrawHierarchyMember(GameObject gameObject)
     {
-        int index = activeScene.gameObjects.IndexOf(gameObject);
-
-        ImGui.PushID(index);
+        int id = gameObject.id;
+        ImGui.PushID(id);
 
         var flags = ImGuiTreeNodeFlags.OpenOnArrow;
         if (gameObject.transform.children.Count == 0) flags |= ImGuiTreeNodeFlags.Leaf;
@@ -150,7 +147,7 @@ unsafe class Engine
 
         if (ImGui.BeginDragDropSource())
         {
-            ImGui.SetDragDropPayload(nameof(GameObject), &index, sizeof(int));
+            ImGui.SetDragDropPayload(nameof(GameObject), &id, sizeof(int));
             ImGui.Text(gameObject.name);
             ImGui.EndDragDropSource();
         }
@@ -160,7 +157,7 @@ unsafe class Engine
             var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
             if (!payload.IsNull)
             {
-                var dragged = activeScene.gameObjects[*(int*)payload.Data];
+                var dragged = activeScene.FindGameObject(*(int*)payload.Data);
                 if (dragged != null && !dragged.transform.children.Contains(gameObject.transform)) dragged.transform.parent = gameObject.transform;
             }
             ImGui.EndDragDropTarget();

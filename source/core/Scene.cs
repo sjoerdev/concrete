@@ -18,6 +18,13 @@ public class Scene
         Engine.activeScene = this;
     }
 
+    public GameObject FindGameObject(int id)
+    {
+        GameObject result = null;
+        foreach (var gameObject in gameObjects) if (gameObject.id == id) result = gameObject;
+        return result;
+    }
+
     public void Start()
     {
         foreach (var gameObject in gameObjects) gameObject.Start();
