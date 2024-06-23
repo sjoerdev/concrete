@@ -28,6 +28,7 @@ unsafe class Engine
 
     bool dockbuilderInitialized = false;
     GameObject selectedGameObject = null;
+    public static bool sceneWindowFocussed = false;
 
     public Engine()
     {
@@ -93,6 +94,7 @@ unsafe class Engine
         }
         
         ImGui.Begin("Scene", ImGuiWindowFlags.NoScrollbar);
+        sceneWindowFocussed = ImGui.IsWindowFocused();
         framebuffer.Resize(ImGui.GetContentRegionAvail());
         framebuffer.Enable();
         framebuffer.Clear(Color.DarkGray);
