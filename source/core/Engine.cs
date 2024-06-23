@@ -121,8 +121,14 @@ unsafe class Engine
         ImGui.Begin("Inspector");
         if (selectedGameObject != null)
         {
+            ImGui.PushID(activeScene.gameObjects.IndexOf(selectedGameObject));
+            ImGui.Checkbox("", ref selectedGameObject.enabled);
+            ImGui.PopID();
+
+            ImGui.SameLine();
             ImGui.InputText("", ref selectedGameObject.name, 100);
             ImGui.Separator();
+
             foreach (var component in selectedGameObject.components) DrawComponent(component);
         }
         ImGui.End();
