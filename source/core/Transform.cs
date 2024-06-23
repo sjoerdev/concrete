@@ -34,6 +34,7 @@ namespace GameEngine
             }
         }
 
+        [Show("position")]
         public Vector3 localPosition
         {
             get => currentLocalPosition;
@@ -74,6 +75,7 @@ namespace GameEngine
             }
         }
 
+        [Show("rotation")]
         public Vector3 localEulerAngles
         {
             get => currentLocalEulerAngles;
@@ -96,6 +98,7 @@ namespace GameEngine
             }
         }
 
+        [Show("scale")]
         public Vector3 localScale
         {
             get => currentLocalScale;

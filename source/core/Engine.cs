@@ -180,8 +180,18 @@ unsafe class Engine
 
     private void DrawField(FieldInfo field, Component component)
     {
+        bool show = false;
+        string showname = null;
+        foreach (var attribute in field.GetCustomAttributes()) if (attribute is ShowAttribute showAttribute)
+        {
+            show = true;
+            showname = showAttribute.name;
+            break;
+        }
+        if (!show) return;
+
         var type = field.FieldType;
-        var name = field.Name;
+        var name = showname == null ? field.Name : showname;
         var curvalue = field.GetValue(component);
 
         if (type == typeof(int))
@@ -218,8 +228,18 @@ unsafe class Engine
 
     private void DrawProperty(PropertyInfo property, Component component)
     {
+        bool show = false;
+        string showname = null;
+        foreach (var attribute in property.GetCustomAttributes()) if (attribute is ShowAttribute showAttribute)
+        {
+            show = true;
+            showname = showAttribute.name;
+            break;
+        }
+        if (!show) return;
+
         var type = property.PropertyType;
-        var name = property.Name;
+        var name = showname == null ? property.Name : showname;
         var curvalue = property.GetValue(component);
 
         if (type == typeof(int))

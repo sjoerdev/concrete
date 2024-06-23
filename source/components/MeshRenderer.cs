@@ -11,7 +11,6 @@ namespace GameEngine;
 public unsafe class MeshRenderer : Component
 {
     private GL opengl;
-
     public string modelPath;
 
     Mesh mesh;

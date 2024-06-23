@@ -4,13 +4,13 @@ namespace GameEngine;
 
 public class Light : Component
 {
-    public float brightness = 1;
-    public Vector3 color = Vector3.One;
+    [Show] public float brightness = 1;
+    [Show] public Vector3 color = Vector3.One;
 }
 
 public class PointLight : Light
 {
-    public float range = 10;
+    [Show] public float range = 10;
 
     public override void Start()
     {
@@ -28,9 +28,9 @@ public class DirectionalLight : Light
 
 public class SpotLight : Light
 {
-    public float range = 4;
-    public float angle = 30;
-    public float softness = 0.5f;
+    [Show] public float range = 4;
+    [Show] public float angle = 30;
+    [Show] public float softness = 0.5f;
 
     public override void Start()
     {

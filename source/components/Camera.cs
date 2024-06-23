@@ -7,7 +7,7 @@ public class Camera : Component
 {
     public Matrix4x4 view;
     public Matrix4x4 proj;
-    public float fov = 90;
+    [Show] public float fov = 90;
 
     private Vector2 lastMousePos;
 
