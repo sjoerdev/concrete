@@ -14,7 +14,7 @@ public class PointLight : Light
 
     public override void Start()
     {
-        Engine.pointLights.Add(this);
+        Engine.sceneManager.pointLights.Add(this);
     }
 }
 
@@ -22,7 +22,7 @@ public class DirectionalLight : Light
 {
     public override void Start()
     {
-        Engine.directionalLights.Add(this);
+        Engine.sceneManager.directionalLights.Add(this);
     }
 }
 
@@ -34,6 +34,6 @@ public class SpotLight : Light
 
     public override void Start()
     {
-        Engine.spotLights.Add(this);
+        Engine.sceneManager.spotLights.Add(this);
     }
 }

@@ -12,7 +12,7 @@ public class GameObject
 
     public GameObject(Scene scene = null)
     {
-        if (scene == null) scene = Engine.activeScene;
+        if (scene == null) scene = Engine.sceneManager.activeScene;
         scene.gameObjects.Add(this);
         transform = AddComponent<Transform>();
         id = GenerateID();

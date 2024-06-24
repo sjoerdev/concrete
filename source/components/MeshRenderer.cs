@@ -33,8 +33,8 @@ public unsafe class MeshRenderer : Component
     {
         shader.Use();
         shader.SetMatrix4("model", gameObject.transform.GetWorldModelMatrix());
-        shader.SetMatrix4("view", Engine.activeCamera.view);
-        shader.SetMatrix4("proj", Engine.activeCamera.proj);
+        shader.SetMatrix4("view", Engine.sceneManager.activeCamera.view);
+        shader.SetMatrix4("proj", Engine.sceneManager.activeCamera.proj);
         shader.SetTexture("tex", mainTexture, 0);
         SetLights();
         RenderMesh(mesh);
@@ -42,9 +42,9 @@ public unsafe class MeshRenderer : Component
 
     private void SetLights()
     {
-        var directionalLights = Engine.directionalLights;
-        var pointLights = Engine.pointLights;
-        var spotLights = Engine.spotLights;
+        var directionalLights = Engine.sceneManager.directionalLights;
+        var pointLights = Engine.sceneManager.pointLights;
+        var spotLights = Engine.sceneManager.spotLights;
 
         // set directional lights
         for (int i = 0; i < directionalLights.Count; i++)
@@ -79,7 +79,7 @@ public unsafe class MeshRenderer : Component
         }
 
         // set view position
-        shader.SetVector3("viewpos", Engine.activeCamera.gameObject.transform.worldPosition);
+        shader.SetVector3("viewpos", Engine.sceneManager.activeCamera.gameObject.transform.worldPosition);
     }
 
     private void RenderMesh(Mesh meshToRender)

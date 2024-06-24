@@ -9,13 +9,13 @@ public class Scene
 
     public Scene(string filePath = null)
     {
-        Engine.scenes.Add(this);
+        Engine.sceneManager.scenes.Add(this);
         if (filePath != null) Deserialize(filePath);
     }
 
     public void SetActive()
     {
-        Engine.activeScene = this;
+        Engine.sceneManager.activeScene = this;
     }
 
     public GameObject FindGameObject(int id)

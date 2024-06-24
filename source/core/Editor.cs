@@ -7,12 +7,14 @@ namespace GameEngine;
 
 public unsafe class Editor
 {
+    public static Framebuffer sceneWindowFramebuffer;
     bool dockbuilderInitialized = false;
     GameObject selectedGameObject = null;
     public static bool sceneWindowFocussed = false;
 
     public Editor()
     {
+        sceneWindowFramebuffer = new Framebuffer();
         ImGui.GetIO().Handle->IniFilename = null;
         ImGui.GetIO().ConfigFlags = ImGuiConfigFlags.DockingEnable;
     }
@@ -35,23 +37,23 @@ public unsafe class Editor
         
         ImGui.Begin("Scene", ImGuiWindowFlags.NoScrollbar);
         sceneWindowFocussed = ImGui.IsWindowFocused();
-        Engine.framebuffer.Resize(ImGui.GetContentRegionAvail());
-        Engine.framebuffer.Enable();
-        Engine.framebuffer.Clear(Color.DarkGray);
-        Engine.activeScene?.Render((float)deltaTime);
-        Engine.framebuffer.Disable();
-        ImGui.Image((nint)Engine.framebuffer.colorTexture, Engine.framebuffer.size, Vector2.UnitY, Vector2.UnitX);
+        sceneWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
+        sceneWindowFramebuffer.Enable();
+        sceneWindowFramebuffer.Clear(Color.DarkGray);
+        Engine.sceneManager.RenderActiveScene(deltaTime);
+        sceneWindowFramebuffer.Disable();
+        ImGui.Image((nint)sceneWindowFramebuffer.colorTexture, sceneWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
         ImGui.End();
 
         ImGui.Begin("Hierarchy");
-        foreach (var gameObject in Engine.activeScene.gameObjects) if (gameObject.transform.parent == null) DrawHierarchyMember(gameObject);
+        foreach (var gameObject in Engine.sceneManager.activeScene.gameObjects) if (gameObject.transform.parent == null) DrawHierarchyMember(gameObject);
         ImGui.InvisibleButton("", ImGui.GetContentRegionAvail());
         if (ImGui.BeginDragDropTarget())
         {
             var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
             if (!payload.IsNull)
             {
-                var dragged = Engine.activeScene.FindGameObject(*(int*)payload.Data);
+                var dragged = Engine.sceneManager.activeScene.FindGameObject(*(int*)payload.Data);
                 if (dragged != null) dragged.transform.parent = null;
             }
             ImGui.EndDragDropTarget();
@@ -95,7 +97,7 @@ public unsafe class Editor
             var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
             if (!payload.IsNull)
             {
-                var dragged = Engine.activeScene.FindGameObject(*(int*)payload.Data);
+                var dragged = Engine.sceneManager.activeScene.FindGameObject(*(int*)payload.Data);
                 if (dragged != null && !dragged.transform.children.Contains(gameObject.transform)) dragged.transform.parent = gameObject.transform;
             }
             ImGui.EndDragDropTarget();
