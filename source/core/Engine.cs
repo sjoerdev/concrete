@@ -60,9 +60,17 @@ unsafe class Engine
         camera.AddComponent<Camera>().SetActive();
         camera.AddComponent<SpotLight>();
         camera.transform.localPosition = new Vector3(0, 1, -2);
+        camera.name = "Camera";
 
-        var model = new GameObject();
-        model.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
+        var firstModel = new GameObject();
+        firstModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
+        firstModel.name = "Model (1)";
+
+        var secondModel = new GameObject();
+        secondModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
+        secondModel.transform.localPosition = new Vector3(1, 1, 0);
+        secondModel.transform.parent = firstModel.transform;
+        secondModel.name = "Model (2)";
         
         activeScene?.Start();
     }
