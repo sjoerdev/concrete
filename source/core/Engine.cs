@@ -44,11 +44,13 @@ public static class Engine
 
         new Scene().SetActive();
 
+        /*
         var camera = new GameObject();
-        camera.AddComponent<Camera>().SetActive();
+        camera.AddComponent<CameraComponent>().SetActive();
         camera.AddComponent<SpotLight>();
         camera.transform.localPosition = new Vector3(0, 1, -2);
         camera.name = "Camera";
+        */
 
         var firstModel = new GameObject();
         firstModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
@@ -66,6 +68,7 @@ public static class Engine
     static void Update(double deltaTime)
     {
         sceneManager.UpdateActiveScene((float)deltaTime);
+        editor.Update((float)deltaTime);
         controller.Update((float)deltaTime);
     }
 

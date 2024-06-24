@@ -3,11 +3,11 @@
 in vec2 uv;
 in vec3 normal;
 in vec3 fragpos;
+in vec3 viewpos;
 
 out vec4 color;
 
 uniform sampler2D tex;
-uniform vec3 viewpos;
 
 struct DirectionalLight
 {

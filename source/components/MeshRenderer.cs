@@ -77,9 +77,6 @@ public unsafe class MeshRenderer : Component
             shader.SetFloat($"spotLights[{i}].angle", light.angle);
             shader.SetFloat($"spotLights[{i}].softness", light.softness);
         }
-
-        // set view position
-        shader.SetVector3("viewpos", Engine.sceneManager.activeCamera.gameObject.transform.worldPosition);
     }
 
     private void RenderMesh(Mesh meshToRender)

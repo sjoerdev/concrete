@@ -2,21 +2,50 @@ using System.Numerics;
 using System.Drawing;
 using System.Reflection;
 using Hexa.NET.ImGui;
+using Silk.NET.Input;
 
 namespace GameEngine;
 
 public unsafe class Editor
 {
-    public static Framebuffer sceneWindowFramebuffer;
+    Framebuffer sceneWindowFramebuffer = null;
+    Camera sceneWindowCamera = null;
+
+    bool sceneWindowFocussed = false;
     bool dockbuilderInitialized = false;
     GameObject selectedGameObject = null;
-    public static bool sceneWindowFocussed = false;
+    private Vector2 lastMousePos;
 
     public Editor()
     {
         sceneWindowFramebuffer = new Framebuffer();
+        sceneWindowCamera = new Camera();
         ImGui.GetIO().Handle->IniFilename = null;
         ImGui.GetIO().ConfigFlags = ImGuiConfigFlags.DockingEnable;
+    }
+
+    public void Update(float deltaTime)
+    {
+        if (!sceneWindowFocussed) return;
+        var keyboard = Engine.input.Keyboards[0];
+        var movedir = new Vector3();
+        if (keyboard.IsKeyPressed(Key.W)) movedir += sceneWindowCamera.forward;
+        if (keyboard.IsKeyPressed(Key.A)) movedir += sceneWindowCamera.right;
+        if (keyboard.IsKeyPressed(Key.S)) movedir -= sceneWindowCamera.forward;
+        if (keyboard.IsKeyPressed(Key.D)) movedir -= sceneWindowCamera.right;
+        if (keyboard.IsKeyPressed(Key.Space)) movedir += sceneWindowCamera.up;
+        if (keyboard.IsKeyPressed(Key.ControlLeft)) movedir -= sceneWindowCamera.up;
+        if (keyboard.IsKeyPressed(Key.ShiftLeft)) movedir *= 2;
+        sceneWindowCamera.position += movedir * deltaTime;
+        var mouse = Engine.input.Mice[0];
+        var lookSpeed = 0.12f;
+        if (mouse.IsButtonPressed(MouseButton.Right))
+        {
+            var mouseDelta = lastMousePos - mouse.Position;
+            sceneWindowCamera.rotation += new Vector3(-mouseDelta.Y, mouseDelta.X, 0) * lookSpeed;
+        }
+        lastMousePos = mouse.Position;
+        sceneWindowCamera.Update((float)sceneWindowFramebuffer.size.X / (float)sceneWindowFramebuffer.size.Y);
     }
 
     public void Render(float deltaTime)
@@ -40,6 +69,7 @@ public unsafe class Editor
         sceneWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         sceneWindowFramebuffer.Enable();
         sceneWindowFramebuffer.Clear(Color.DarkGray);
+        Engine.sceneManager.activeCamera = sceneWindowCamera;
         Engine.sceneManager.RenderActiveScene(deltaTime);
         sceneWindowFramebuffer.Disable();
         ImGui.Image((nint)sceneWindowFramebuffer.colorTexture, sceneWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
