@@ -50,7 +50,7 @@ public unsafe class MeshRenderer : Component
         for (int i = 0; i < directionalLights.Count; i++)
         {
             var light = directionalLights[i];
-            shader.SetVector3($"dirLights[{i}].direction", light.gameObject.transform.Forward());
+            shader.SetVector3($"dirLights[{i}].direction", light.gameObject.transform.forward);
             shader.SetFloat($"dirLights[{i}].brightness", light.brightness);
             shader.SetVector3($"dirLights[{i}].color", light.color);
         }
@@ -70,7 +70,7 @@ public unsafe class MeshRenderer : Component
         {
             var light = spotLights[i];
             shader.SetVector3($"spotLights[{i}].position", light.gameObject.transform.worldPosition);
-            shader.SetVector3($"spotLights[{i}].direction", light.gameObject.transform.Forward());
+            shader.SetVector3($"spotLights[{i}].direction", light.gameObject.transform.forward);
             shader.SetFloat($"spotLights[{i}].brightness", light.brightness);
             shader.SetVector3($"spotLights[{i}].color", light.color);
             shader.SetFloat($"spotLights[{i}].range", light.range);
