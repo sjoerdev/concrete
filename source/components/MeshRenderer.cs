@@ -17,24 +17,19 @@ public unsafe class MeshRenderer : Component
     Shader shader;
     uint mainTexture;
 
-    public override void Start()
+    public MeshRenderer()
     {
         opengl = Engine.opengl;
         shader = new Shader("resources/shaders/default-vert.glsl", "resources/shaders/default-frag.glsl");
         LoadModelFile(modelPath);
     }
 
-    public override void Update(float deltaTime)
-    {
-        // update stuff
-    }
-
-    public override void Render(float deltaTime)
+    public override void Render(float deltaTime, Projection projection)
     {
         shader.Use();
         shader.SetMatrix4("model", gameObject.transform.GetWorldModelMatrix());
-        shader.SetMatrix4("view", Engine.sceneManager.activeCamera.view);
-        shader.SetMatrix4("proj", Engine.sceneManager.activeCamera.proj);
+        shader.SetMatrix4("view", projection.view);
+        shader.SetMatrix4("proj", projection.proj);
         shader.SetTexture("tex", mainTexture, 0);
         SetLights();
         RenderMesh(mesh);
@@ -42,9 +37,18 @@ public unsafe class MeshRenderer : Component
 
     private void SetLights()
     {
-        var directionalLights = Engine.sceneManager.directionalLights;
-        var pointLights = Engine.sceneManager.pointLights;
-        var spotLights = Engine.sceneManager.spotLights;
+        var lights = Engine.sceneManager.loadedScene.FindLights();
+
+        var directionalLights = new List<DirectionalLight>();
+        var pointLights = new List<PointLight>();
+        var spotLights = new List<SpotLight>();
+
+        foreach (var light in lights)
+        {
+            if (light is DirectionalLight directional) directionalLights.Add(directional);
+            if (light is PointLight point) pointLights.Add(point);
+            if (light is SpotLight spot) spotLights.Add(spot);
+        }
 
         // set directional lights
         for (int i = 0; i < directionalLights.Count; i++)

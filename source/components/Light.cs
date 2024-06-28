@@ -11,19 +11,11 @@ public class Light : Component
 public class PointLight : Light
 {
     [Show] public float range = 10;
-
-    public override void Start()
-    {
-        Engine.sceneManager.pointLights.Add(this);
-    }
 }
 
 public class DirectionalLight : Light
 {
-    public override void Start()
-    {
-        Engine.sceneManager.directionalLights.Add(this);
-    }
+    // no unique variables
 }
 
 public class SpotLight : Light
@@ -31,9 +23,4 @@ public class SpotLight : Light
     [Show] public float range = 4;
     [Show] public float angle = 30;
     [Show] public float softness = 0.5f;
-
-    public override void Start()
-    {
-        Engine.sceneManager.spotLights.Add(this);
-    }
 }

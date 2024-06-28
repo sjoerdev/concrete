@@ -4,25 +4,32 @@ namespace GameEngine;
 
 public class SceneManager
 {
-    public Scene activeScene = null;
-    public List<Scene> scenes = [];
-    public Camera activeCamera = null;
-    public List<DirectionalLight> directionalLights = [];
-    public List<PointLight> pointLights = [];
-    public List<SpotLight> spotLights = [];
+    public bool isPlaying = false;
+    public Scene loadedScene = null;
 
-    public void StartActiveScene()
+    public void LoadScene(Scene scene)
     {
-        activeScene?.Start();
+        loadedScene = scene;
     }
 
-    public void UpdateActiveScene(float deltaTime)
+    public void Play()
     {
-        activeScene?.Update(deltaTime);
+        loadedScene?.Start();
+        isPlaying = true;
     }
 
-    public void RenderActiveScene(float deltaTime)
+    public void Stop()
     {
-        activeScene?.Render(deltaTime);
+        isPlaying = false;
+    }
+
+    public void Update(float deltaTime)
+    {
+        if (isPlaying) loadedScene?.Update(deltaTime);
+    }
+
+    public void Render(float deltaTime, Projection projection)
+    {
+        loadedScene?.Render(deltaTime, projection);
     }
 }

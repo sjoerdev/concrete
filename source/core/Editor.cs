@@ -2,50 +2,31 @@ using System.Numerics;
 using System.Drawing;
 using System.Reflection;
 using Hexa.NET.ImGui;
-using Silk.NET.Input;
 
 namespace GameEngine;
 
 public unsafe class Editor
 {
     Framebuffer sceneWindowFramebuffer = null;
-    Camera sceneWindowCamera = null;
+    GameObject selectedGameObject = null;
+    SceneProjection sceneProjection = null;
 
     bool sceneWindowFocussed = false;
     bool dockbuilderInitialized = false;
-    GameObject selectedGameObject = null;
-    private Vector2 lastMousePos;
 
     public Editor()
     {
         sceneWindowFramebuffer = new Framebuffer();
-        sceneWindowCamera = new Camera();
+        sceneProjection = new SceneProjection();
         ImGui.GetIO().Handle->IniFilename = null;
         ImGui.GetIO().ConfigFlags = ImGuiConfigFlags.DockingEnable;
     }
 
     public void Update(float deltaTime)
     {
-        if (!sceneWindowFocussed) return;
-        var keyboard = Engine.input.Keyboards[0];
-        var movedir = new Vector3();
-        if (keyboard.IsKeyPressed(Key.W)) movedir += sceneWindowCamera.forward;
-        if (keyboard.IsKeyPressed(Key.A)) movedir += sceneWindowCamera.right;
-        if (keyboard.IsKeyPressed(Key.S)) movedir -= sceneWindowCamera.forward;
-        if (keyboard.IsKeyPressed(Key.D)) movedir -= sceneWindowCamera.right;
-        if (keyboard.IsKeyPressed(Key.Space)) movedir += sceneWindowCamera.up;
-        if (keyboard.IsKeyPressed(Key.ControlLeft)) movedir -= sceneWindowCamera.up;
-        if (keyboard.IsKeyPressed(Key.ShiftLeft)) movedir *= 2;
-        sceneWindowCamera.position += movedir * deltaTime;
-        var mouse = Engine.input.Mice[0];
-        var lookSpeed = 0.12f;
-        if (mouse.IsButtonPressed(MouseButton.Right))
-        {
-            var mouseDelta = lastMousePos - mouse.Position;
-            sceneWindowCamera.rotation += new Vector3(-mouseDelta.Y, mouseDelta.X, 0) * lookSpeed;
-        }
-        lastMousePos = mouse.Position;
-        sceneWindowCamera.Update((float)sceneWindowFramebuffer.size.X / (float)sceneWindowFramebuffer.size.Y);
+        float sceneWindowAspect = (float)sceneWindowFramebuffer.size.X / (float)sceneWindowFramebuffer.size.Y;
+        sceneProjection.UpdateProjection(sceneWindowAspect);
+        if (sceneWindowFocussed) sceneProjection.ApplyMovement(deltaTime);
     }
 
     public void Render(float deltaTime)
@@ -66,24 +47,25 @@ public unsafe class Editor
         
         ImGui.Begin("Scene", ImGuiWindowFlags.NoScrollbar);
         sceneWindowFocussed = ImGui.IsWindowFocused();
+
         sceneWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         sceneWindowFramebuffer.Enable();
         sceneWindowFramebuffer.Clear(Color.DarkGray);
-        Engine.sceneManager.activeCamera = sceneWindowCamera;
-        Engine.sceneManager.RenderActiveScene(deltaTime);
+        Engine.sceneManager.Render(deltaTime, sceneProjection.projection);
         sceneWindowFramebuffer.Disable();
+
         ImGui.Image((nint)sceneWindowFramebuffer.colorTexture, sceneWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
         ImGui.End();
 
         ImGui.Begin("Hierarchy");
-        foreach (var gameObject in Engine.sceneManager.activeScene.gameObjects) if (gameObject.transform.parent == null) DrawHierarchyMember(gameObject);
+        foreach (var gameObject in Engine.sceneManager.loadedScene.gameObjects) if (gameObject.transform.parent == null) DrawHierarchyMember(gameObject);
         ImGui.InvisibleButton("", ImGui.GetContentRegionAvail());
         if (ImGui.BeginDragDropTarget())
         {
             var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
             if (!payload.IsNull)
             {
-                var dragged = Engine.sceneManager.activeScene.FindGameObject(*(int*)payload.Data);
+                var dragged = Engine.sceneManager.loadedScene.FindGameObject(*(int*)payload.Data);
                 if (dragged != null) dragged.transform.parent = null;
             }
             ImGui.EndDragDropTarget();
@@ -127,7 +109,7 @@ public unsafe class Editor
             var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
             if (!payload.IsNull)
             {
-                var dragged = Engine.sceneManager.activeScene.FindGameObject(*(int*)payload.Data);
+                var dragged = Engine.sceneManager.loadedScene.FindGameObject(*(int*)payload.Data);
                 if (dragged != null && !dragged.transform.children.Contains(gameObject.transform)) dragged.transform.parent = gameObject.transform;
             }
             ImGui.EndDragDropTarget();

@@ -1,5 +1,4 @@
 using System.Numerics;
-using System.Xml.Linq;
 
 namespace GameEngine;
 
@@ -9,13 +8,23 @@ public class Scene
 
     public Scene(string filePath = null)
     {
-        Engine.sceneManager.scenes.Add(this);
         if (filePath != null) Deserialize(filePath);
     }
 
-    public void SetActive()
+    public List<Light> FindLights()
     {
-        Engine.sceneManager.activeScene = this;
+        List<Light> lights = [];
+        foreach (var gameObject in gameObjects)
+        {
+            foreach (var component in gameObject.components)
+            {
+                if (component is Light light)
+                {
+                    lights.Add(light);
+                }
+            }
+        }
+        return lights;
     }
 
     public GameObject FindGameObject(int id)
@@ -35,40 +44,13 @@ public class Scene
         foreach (var gameObject in gameObjects) gameObject.Update(deltaTime);
     }
 
-    public void Render(float deltaTime)
+    public void Render(float deltaTime, Projection projection)
     {
-        foreach (var gameObject in gameObjects) gameObject.Render(deltaTime);
+        foreach (var gameObject in gameObjects) gameObject.Render(deltaTime, projection);
     }
-
+    
     private void Deserialize(string filePath)
     {
-        foreach (var xmlGameObject in XDocument.Load(filePath).Root.Elements("GameObject"))
-        {
-            var gameObject = new GameObject(this);
-            foreach (var xmlComponent in xmlGameObject.Elements())
-            {
-                var type = xmlComponent.Name.LocalName;
-                if (type == "Transform")
-                {
-                    var transform = gameObject.GetComponent<Transform>();
-                    /*
-                    transform.position = ParseVector3(xmlComponent.Element("position").Value);
-                    transform.rotation = ParseVector3(xmlComponent.Element("rotation").Value);
-                    transform.scale = ParseVector3(xmlComponent.Element("scale").Value);
-                    */
-                }
-                else if (type == "MeshRenderer")
-                {
-                    var modelPath = xmlComponent.Element("modelPath").Value;
-                    gameObject.AddComponent<MeshRenderer>().modelPath = modelPath;
-                }
-            }
-        }
-    }
-
-    private Vector3 ParseVector3(string vectorString)
-    {
-        var values = vectorString.Split(',').Select(float.Parse).ToArray();
-        return new Vector3(values[0], values[1], values[2]);
+        // load scene file
     }
 }

@@ -12,7 +12,7 @@ public class GameObject
 
     public GameObject(Scene scene = null)
     {
-        if (scene == null) scene = Engine.sceneManager.activeScene;
+        if (scene == null) scene = Engine.sceneManager.loadedScene;
         scene.gameObjects.Add(this);
         transform = AddComponent<Transform>();
         id = GenerateID();
@@ -53,9 +53,9 @@ public class GameObject
         foreach (var component in components) component.Update(deltaTime);
     }
 
-    public void Render(float deltaTime)
+    public void Render(float deltaTime, Projection projection)
     {
         if (!enabled) return;
-        foreach (var component in components) component.Render(deltaTime);
+        foreach (var component in components) component.Render(deltaTime, projection);
     }
 }

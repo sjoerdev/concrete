@@ -40,9 +40,10 @@ public static class Engine
         sceneManager = new SceneManager();
         editor = new Editor();
 
-        // debug scene --------
+        // load debug scene --------
 
-        new Scene().SetActive();
+        var debugScene = new Scene();
+        sceneManager.LoadScene(debugScene);
 
         /*
         var camera = new GameObject();
@@ -61,13 +62,11 @@ public static class Engine
         secondModel.transform.localPosition = new Vector3(1, 1, 0);
         secondModel.transform.parent = firstModel.transform;
         secondModel.name = "Model (2)";
-
-        sceneManager.StartActiveScene();
     }
 
     static void Update(double deltaTime)
     {
-        sceneManager.UpdateActiveScene((float)deltaTime);
+        sceneManager.Update((float)deltaTime);
         editor.Update((float)deltaTime);
         controller.Update((float)deltaTime);
     }
