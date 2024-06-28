@@ -14,18 +14,26 @@ public class SceneManager
 
     public void Play()
     {
-        loadedScene?.Start();
+        Start();
         isPlaying = true;
+        Console.WriteLine("play");
     }
 
     public void Stop()
     {
         isPlaying = false;
+        Console.WriteLine("stop");
     }
 
-    public void Update(float deltaTime)
+    public void Start()
     {
-        if (isPlaying) loadedScene?.Update(deltaTime);
+        loadedScene?.Start();
+    }
+
+    public void TryUpdate(float deltaTime)
+    {
+        if (!isPlaying) return;
+        loadedScene?.Update(deltaTime);
     }
 
     public void Render(float deltaTime, Projection projection)

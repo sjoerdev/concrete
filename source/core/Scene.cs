@@ -11,16 +11,19 @@ public class Scene
         if (filePath != null) Deserialize(filePath);
     }
 
-    public List<Light> FindLights()
+    public List<Light> FindActiveLights()
     {
         List<Light> lights = [];
         foreach (var gameObject in gameObjects)
         {
-            foreach (var component in gameObject.components)
+            if (gameObject.enabled)
             {
-                if (component is Light light)
+                foreach (var component in gameObject.components)
                 {
-                    lights.Add(light);
+                    if (component is Light light)
+                    {
+                        lights.Add(light);
+                    }
                 }
             }
         }

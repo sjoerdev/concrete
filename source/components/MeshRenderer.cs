@@ -21,6 +21,11 @@ public unsafe class MeshRenderer : Component
     {
         opengl = Engine.opengl;
         shader = new Shader("resources/shaders/default-vert.glsl", "resources/shaders/default-frag.glsl");
+    }
+
+    public void LoadModel(string path)
+    {
+        modelPath = path;
         LoadModelFile(modelPath);
     }
 
@@ -37,7 +42,7 @@ public unsafe class MeshRenderer : Component
 
     private void SetLights()
     {
-        var lights = Engine.sceneManager.loadedScene.FindLights();
+        var lights = Engine.sceneManager.loadedScene.FindActiveLights();
 
         var directionalLights = new List<DirectionalLight>();
         var pointLights = new List<PointLight>();
@@ -48,6 +53,35 @@ public unsafe class MeshRenderer : Component
             if (light is DirectionalLight directional) directionalLights.Add(directional);
             if (light is PointLight point) pointLights.Add(point);
             if (light is SpotLight spot) spotLights.Add(spot);
+        }
+
+        // clear directional lights
+        for (int i = 0; i < 16; i++)
+        {
+            shader.SetVector3($"dirLights[{i}].direction", Vector3.Zero);
+            shader.SetVector3($"dirLights[{i}].color", Vector3.Zero);
+            shader.SetFloat($"dirLights[{i}].brightness", 0);
+        }
+
+        // clear point lights
+        for (int i = 0; i < 16; i++)
+        {
+            shader.SetVector3($"pointLights[{i}].position", Vector3.Zero);
+            shader.SetVector3($"pointLights[{i}].color", Vector3.Zero);
+            shader.SetFloat($"pointLights[{i}].brightness", 0);
+            shader.SetFloat($"pointLights[{i}].range", 0);
+        }
+
+        // clear spot lights
+        for (int i = 0; i < 16; i++)
+        {
+            shader.SetVector3($"spotLights[{i}].position", Vector3.Zero);
+            shader.SetVector3($"spotLights[{i}].direction", Vector3.Zero);
+            shader.SetVector3($"spotLights[{i}].color", Vector3.Zero);
+            shader.SetFloat($"spotLights[{i}].brightness", 0);
+            shader.SetFloat($"spotLights[{i}].range", 0);
+            shader.SetFloat($"spotLights[{i}].angle", 0);
+            shader.SetFloat($"spotLights[{i}].softness", 0);
         }
 
         // set directional lights
@@ -69,7 +103,7 @@ public unsafe class MeshRenderer : Component
             shader.SetFloat($"pointLights[{i}].range", light.range);
         }
 
-        // set spotlights
+        // set spot lights
         for (int i = 0; i < spotLights.Count; i++)
         {
             var light = spotLights[i];

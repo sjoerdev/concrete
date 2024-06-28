@@ -4,7 +4,7 @@ namespace GameEngine;
 
 public class Camera : Component
 {
-    public Projection projection;
+    public Projection projection = new();
     [Show] public float fov = 90;
 
     public override void Update(float deltaTime)
