@@ -50,7 +50,11 @@ public unsafe class Editor
             var paused = sceneManager.playerState == PlayerState.paused;
 
             ImGui.BeginDisabled(playing || paused);
-            if (ImGui.Button("play", size)) Engine.sceneManager.Play();
+            if (ImGui.Button("play", size))
+            {
+                Engine.sceneManager.Play();
+                ImGui.FocusWindow(ImGui.FindWindowByName("Game"), ImGuiFocusRequestFlags.None);
+            }
             ImGui.EndDisabled();
 
             ImGui.BeginDisabled(stopped);
