@@ -14,6 +14,7 @@ public class SceneManager
 
     public void Play()
     {
+        if (isPlaying) return;
         Start();
         isPlaying = true;
         Console.WriteLine("play");
@@ -21,6 +22,7 @@ public class SceneManager
 
     public void Stop()
     {
+        if (!isPlaying) return;
         isPlaying = false;
         Console.WriteLine("stop");
     }

@@ -31,6 +31,31 @@ public unsafe class Editor
 
     public void Render(float deltaTime)
     {
+        if (ImGui.BeginMainMenuBar())
+        {
+            float buttonWidth = 60;
+            float spacing = ImGui.GetStyle().ItemSpacing.X;
+            float half = Engine.window.Size.X / 2;
+            ImGui.SetCursorPosX(half - buttonWidth * 1.5f - spacing);
+
+            if (ImGui.Button("play", new Vector2(buttonWidth, 0)))
+            {
+                Engine.sceneManager.Play();
+            }
+
+            if (ImGui.Button("pause", new Vector2(buttonWidth, 0)))
+            {
+                // pause
+            }
+
+            if (ImGui.Button("stop", new Vector2(buttonWidth, 0)))
+            {
+                Engine.sceneManager.Stop();
+            }
+
+            ImGui.EndMainMenuBar();
+        }
+
         int dockspace = ImGui.DockSpaceOverViewport((ImGuiDockNodeFlags)ImGuiDockNodeFlagsPrivate.NoWindowMenuButton);
         if (!dockbuilderInitialized)
         {
