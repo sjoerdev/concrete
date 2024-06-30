@@ -7,15 +7,20 @@ namespace GameEngine;
 
 public unsafe class Editor
 {
-    Framebuffer sceneWindowFramebuffer = null;
+    bool dockbuilderInitialized = false;
     GameObject selectedGameObject = null;
+
     SceneProjection sceneProjection = null;
 
     bool sceneWindowFocussed = false;
-    bool dockbuilderInitialized = false;
+    public Framebuffer sceneWindowFramebuffer = null;
+
+    bool gameWindowFocussed = false;
+    public Framebuffer gameWindowFramebuffer = null;
 
     public Editor()
     {
+        gameWindowFramebuffer = new Framebuffer();
         sceneWindowFramebuffer = new Framebuffer();
         sceneProjection = new SceneProjection();
         ImGui.GetIO().Handle->IniFilename = null;
@@ -71,6 +76,7 @@ public unsafe class Editor
             int topleftdock, bottomleftdock = 0;
             ImGui.DockBuilderSplitNode(leftdock, ImGuiDir.Up, 0.5f, &bottomleftdock, &topleftdock);
             ImGui.DockBuilderDockWindow("Scene", rightdock);
+            ImGui.DockBuilderDockWindow("Game", rightdock);
             ImGui.DockBuilderDockWindow("Hierarchy", topleftdock);
             ImGui.DockBuilderDockWindow("Inspector", bottomleftdock);
             ImGui.DockBuilderFinish(dockspace);
@@ -81,12 +87,24 @@ public unsafe class Editor
         sceneWindowFocussed = ImGui.IsWindowFocused();
 
         sceneWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
-        sceneWindowFramebuffer.Enable();
+        sceneWindowFramebuffer.Bind();
         sceneWindowFramebuffer.Clear(Color.DarkGray);
         Engine.sceneManager.Render(deltaTime, sceneProjection.projection);
-        sceneWindowFramebuffer.Disable();
+        sceneWindowFramebuffer.Unbind();
 
         ImGui.Image((nint)sceneWindowFramebuffer.colorTexture, sceneWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
+        ImGui.End();
+
+        ImGui.Begin("Game", ImGuiWindowFlags.NoScrollbar);
+        gameWindowFocussed = ImGui.IsWindowFocused();
+
+        gameWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
+        gameWindowFramebuffer.Bind();
+        gameWindowFramebuffer.Clear(Color.DarkGray);
+        Engine.sceneManager.Render(deltaTime, Camera.main.projection);
+        gameWindowFramebuffer.Unbind();
+
+        ImGui.Image((nint)gameWindowFramebuffer.colorTexture, gameWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
         ImGui.End();
 
         ImGui.Begin("Hierarchy");

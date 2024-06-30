@@ -46,13 +46,13 @@ public unsafe class Framebuffer
         opengl.Clear((uint)(GLEnum.ColorBufferBit | GLEnum.DepthBufferBit));
     }
 
-    public void Enable()
+    public void Bind()
     {
         opengl.BindFramebuffer(GLEnum.Framebuffer, handle);
         opengl.Viewport(new Size((int)size.X, (int)size.Y));
     }
 
-    public void Disable()
+    public void Unbind()
     {
         opengl.BindFramebuffer(GLEnum.Framebuffer, 0);
         opengl.Viewport(Engine.window.Size);
@@ -61,9 +61,11 @@ public unsafe class Framebuffer
     public void Resize(Vector2 newSize)
     {
         size = newSize;
+        Bind();
         opengl.BindTexture(GLEnum.Texture2D, colorTexture);
         opengl.TexImage2D(GLEnum.Texture2D, 0, (int)GLEnum.Rgba, (uint)size.X, (uint)size.Y, 0, GLEnum.Rgba, GLEnum.UnsignedByte, null);
         opengl.BindTexture(GLEnum.Texture2D, depthTexture);
         opengl.TexImage2D(GLEnum.Texture2D, 0, (int)GLEnum.DepthComponent, (uint)size.X, (uint)size.Y, 0, GLEnum.DepthComponent, GLEnum.Float, null);
+        Unbind();
     }
 }
