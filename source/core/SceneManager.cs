@@ -4,8 +4,8 @@ namespace GameEngine;
 
 public class SceneManager
 {
-    public bool isPlaying = false;
     public Scene loadedScene = null;
+    public PlayerState playerState = PlayerState.stopped;
 
     public void LoadScene(Scene scene)
     {
@@ -14,17 +14,23 @@ public class SceneManager
 
     public void Play()
     {
-        if (isPlaying) return;
         Start();
-        isPlaying = true;
-        Console.WriteLine("play");
+        playerState = PlayerState.playing;
+    }
+
+    public void Pause()
+    {
+        playerState = PlayerState.paused;
+    }
+
+    public void Continue()
+    {
+        playerState = PlayerState.playing;
     }
 
     public void Stop()
     {
-        if (!isPlaying) return;
-        isPlaying = false;
-        Console.WriteLine("stop");
+        playerState = PlayerState.stopped;
     }
 
     public void Start()
@@ -34,7 +40,7 @@ public class SceneManager
 
     public void TryUpdate(float deltaTime)
     {
-        if (!isPlaying) return;
+        if (playerState != PlayerState.playing) return;
         loadedScene?.Update(deltaTime);
     }
 
@@ -42,4 +48,11 @@ public class SceneManager
     {
         loadedScene?.Render(deltaTime, projection);
     }
+}
+
+public enum PlayerState
+{
+    stopped,
+    playing,
+    paused
 }

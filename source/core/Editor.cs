@@ -33,25 +33,32 @@ public unsafe class Editor
     {
         if (ImGui.BeginMainMenuBar())
         {
-            float buttonWidth = 60;
+            float buttonWidth = 64;
             float spacing = ImGui.GetStyle().ItemSpacing.X;
             float half = Engine.window.Size.X / 2;
             ImGui.SetCursorPosX(half - buttonWidth * 1.5f - spacing);
+            var size = new Vector2(buttonWidth, 0);
 
-            if (ImGui.Button("play", new Vector2(buttonWidth, 0)))
-            {
-                Engine.sceneManager.Play();
-            }
+            var sceneManager = Engine.sceneManager;
+            var stopped = sceneManager.playerState == PlayerState.stopped;
+            var playing = sceneManager.playerState == PlayerState.playing;
+            var paused = sceneManager.playerState == PlayerState.paused;
 
-            if (ImGui.Button("pause", new Vector2(buttonWidth, 0)))
-            {
-                // pause
-            }
+            ImGui.BeginDisabled(playing || paused);
+            if (ImGui.Button("play", size)) Engine.sceneManager.Play();
+            ImGui.EndDisabled();
 
-            if (ImGui.Button("stop", new Vector2(buttonWidth, 0)))
+            ImGui.BeginDisabled(stopped);
+            if (ImGui.Button(paused ? "continue" : "pause", size))
             {
-                Engine.sceneManager.Stop();
+                if (paused) Engine.sceneManager.Continue();
+                else Engine.sceneManager.Pause();
             }
+            ImGui.EndDisabled();
+
+            ImGui.BeginDisabled(stopped);
+            if (ImGui.Button("stop", size)) Engine.sceneManager.Stop();
+            ImGui.EndDisabled();
 
             ImGui.EndMainMenuBar();
         }
