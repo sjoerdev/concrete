@@ -6,9 +6,9 @@ public class Scene
 {
     public List<GameObject> gameObjects = [];
 
-    public Scene(string filePath = null)
+    public Scene()
     {
-        if (filePath != null) Deserialize(filePath);
+        // do nothing
     }
 
     public List<Light> FindActiveLights()
@@ -50,10 +50,5 @@ public class Scene
     public void Render(float deltaTime, Projection projection)
     {
         foreach (var gameObject in gameObjects) gameObject.Render(deltaTime, projection);
-    }
-    
-    private void Deserialize(string filePath)
-    {
-        // load scene file
     }
 }

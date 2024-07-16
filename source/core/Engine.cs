@@ -49,22 +49,18 @@ public static class Engine
         cameraObject.AddComponent<Camera>();
         cameraObject.AddComponent<SpotLight>();
         cameraObject.transform.localPosition = new Vector3(0, 1, -2);
-        cameraObject.name = "Camera";
 
         var firstModel = new GameObject();
-        firstModel.AddComponent<MeshRenderer>().LoadModel("resources/models/testmodel.glb");
-        firstModel.name = "Model (1)";
+        firstModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
 
         var secondModel = new GameObject();
-        secondModel.AddComponent<MeshRenderer>().LoadModel("resources/models/testmodel.glb");
+        secondModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
         secondModel.transform.localPosition = new Vector3(1, 1, 0);
         secondModel.transform.parent = firstModel.transform;
-        secondModel.name = "Model (2)";
     }
 
     static void UpdateWindow(double deltaTime)
     {
-        // todo: deal with play/stop buttons
         sceneManager.TryUpdate((float)deltaTime);
         editor.Update((float)deltaTime);
         igcontroller.Update((float)deltaTime);

@@ -10,23 +10,22 @@ namespace GameEngine;
 
 public unsafe class MeshRenderer : Component
 {
-    private GL opengl;
-    public string modelPath;
+    public string modelPath
+    {
+        get => currentModelPath;
+        set => ChangeModelPath(value);
+    }
 
-    Mesh mesh;
-    Shader shader;
-    uint mainTexture;
+    private GL opengl;
+    private Mesh mesh;
+    private Shader shader;
+    private uint mainTexture;
+    private string currentModelPath;
 
     public MeshRenderer()
     {
         opengl = Engine.opengl;
         shader = new Shader("resources/shaders/default-vert.glsl", "resources/shaders/default-frag.glsl");
-    }
-
-    public void LoadModel(string path)
-    {
-        modelPath = path;
-        LoadModelFile(modelPath);
     }
 
     public override void Render(float deltaTime, Projection projection)
@@ -38,6 +37,12 @@ public unsafe class MeshRenderer : Component
         shader.SetTexture("tex", mainTexture, 0);
         SetLights();
         RenderMesh(mesh);
+    }
+
+    private void ChangeModelPath(string newPath)
+    {
+        currentModelPath = newPath;
+        LoadModelFile(currentModelPath);
     }
 
     private void SetLights()

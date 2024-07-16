@@ -10,13 +10,13 @@ public class GameObject
     public Transform transform;
     public List<Component> components = [];
 
-    public GameObject(Scene scene = null)
+    public GameObject()
     {
-        if (scene == null) scene = Engine.sceneManager.loadedScene;
+        var scene = Engine.sceneManager.loadedScene;
         scene.gameObjects.Add(this);
         transform = AddComponent<Transform>();
         id = GenerateID();
-        name = "GameObject_" + scene.gameObjects.Count.ToString();
+        name = $"GameObject ({scene.gameObjects.Count - 1})";
         enabled = true;
     }
 
