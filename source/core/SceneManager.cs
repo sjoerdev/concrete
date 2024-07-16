@@ -14,6 +14,7 @@ public class SceneManager
 
     public void Play()
     {
+        Serialization.SaveScene("scene.bin", loadedScene);
         Start();
         playerState = PlayerState.playing;
     }
@@ -31,6 +32,7 @@ public class SceneManager
     public void Stop()
     {
         playerState = PlayerState.stopped;
+        loadedScene = Serialization.LoadScene("scene.bin");
     }
 
     public void Start()

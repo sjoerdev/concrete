@@ -12,12 +12,19 @@ public class GameObject
 
     public GameObject()
     {
+        // do nothing
+    }
+
+    public static GameObject Create()
+    {
         var scene = Engine.sceneManager.loadedScene;
-        scene.gameObjects.Add(this);
-        transform = AddComponent<Transform>();
-        id = GenerateID();
-        name = $"GameObject ({scene.gameObjects.Count - 1})";
-        enabled = true;
+        var gameObject = new GameObject();
+        gameObject.transform = gameObject.AddComponent<Transform>();
+        gameObject.id = gameObject.GenerateID();
+        gameObject.name = $"GameObject ({scene.gameObjects.Count})";
+        gameObject.enabled = true;
+        scene.gameObjects.Add(gameObject);
+        return gameObject;
     }
 
     public int GenerateID()

@@ -45,15 +45,15 @@ public static class Engine
         var debugScene = new Scene();
         sceneManager.LoadScene(debugScene);
 
-        var cameraObject = new GameObject();
+        var cameraObject = GameObject.Create();
         cameraObject.AddComponent<Camera>();
         cameraObject.AddComponent<SpotLight>();
         cameraObject.transform.localPosition = new Vector3(0, 1, -2);
 
-        var firstModel = new GameObject();
+        var firstModel = GameObject.Create();
         firstModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
 
-        var secondModel = new GameObject();
+        var secondModel = GameObject.Create();
         secondModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
         secondModel.transform.localPosition = new Vector3(1, 1, 0);
         secondModel.transform.parent = firstModel.transform;
