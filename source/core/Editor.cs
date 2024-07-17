@@ -12,7 +12,7 @@ public unsafe class Editor
     int selectedGameObjectIdentifier;
     GameObject selectedGameObject
     {
-        get => Engine.sceneManager.loadedScene.FindGameObject(selectedGameObjectIdentifier);
+        get => SceneManager.loadedScene.FindGameObject(selectedGameObjectIdentifier);
         set => selectedGameObjectIdentifier = value.id;
     }
 
@@ -50,15 +50,14 @@ public unsafe class Editor
             ImGui.SetCursorPosX(half - buttonWidth * 1.5f - spacing);
             var size = new Vector2(buttonWidth, 0);
 
-            var sceneManager = Engine.sceneManager;
-            var stopped = sceneManager.playerState == PlayerState.stopped;
-            var playing = sceneManager.playerState == PlayerState.playing;
-            var paused = sceneManager.playerState == PlayerState.paused;
+            var stopped = SceneManager.playerState == PlayerState.stopped;
+            var playing = SceneManager.playerState == PlayerState.playing;
+            var paused = SceneManager.playerState == PlayerState.paused;
 
             ImGui.BeginDisabled(playing || paused);
             if (ImGui.Button("play", size))
             {
-                Engine.sceneManager.Play();
+                SceneManager.Play();
                 ImGui.FocusWindow(ImGui.FindWindowByName("Game"), ImGuiFocusRequestFlags.None);
             }
             ImGui.EndDisabled();
@@ -66,13 +65,13 @@ public unsafe class Editor
             ImGui.BeginDisabled(stopped);
             if (ImGui.Button(paused ? "continue" : "pause", size))
             {
-                if (paused) Engine.sceneManager.Continue();
-                else Engine.sceneManager.Pause();
+                if (paused) SceneManager.Continue();
+                else SceneManager.Pause();
             }
             ImGui.EndDisabled();
 
             ImGui.BeginDisabled(stopped);
-            if (ImGui.Button("stop", size)) Engine.sceneManager.Stop();
+            if (ImGui.Button("stop", size)) SceneManager.Stop();
             ImGui.EndDisabled();
 
             ImGui.EndMainMenuBar();
@@ -99,7 +98,7 @@ public unsafe class Editor
         sceneWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         sceneWindowFramebuffer.Bind();
         sceneWindowFramebuffer.Clear(Color.DarkGray);
-        Engine.sceneManager.Render(deltaTime, sceneProjection.projection);
+        SceneManager.Render(deltaTime, sceneProjection.projection);
         sceneWindowFramebuffer.Unbind();
 
         ImGui.Image((nint)sceneWindowFramebuffer.colorTexture, sceneWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
@@ -111,21 +110,21 @@ public unsafe class Editor
         gameWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         gameWindowFramebuffer.Bind();
         gameWindowFramebuffer.Clear(Color.DarkGray);
-        Engine.sceneManager.Render(deltaTime, Engine.sceneManager.loadedScene.FindAnyCamera().Project());
+        SceneManager.Render(deltaTime, SceneManager.loadedScene.FindAnyCamera().Project());
         gameWindowFramebuffer.Unbind();
 
         ImGui.Image((nint)gameWindowFramebuffer.colorTexture, gameWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
         ImGui.End();
 
         ImGui.Begin("Hierarchy");
-        foreach (var gameObject in Engine.sceneManager.loadedScene.gameObjects) if (gameObject.transform.parent == null) DrawHierarchyMember(gameObject);
+        foreach (var gameObject in SceneManager.loadedScene.gameObjects) if (gameObject.transform.parent == null) DrawHierarchyMember(gameObject);
         ImGui.InvisibleButton("", ImGui.GetContentRegionAvail());
         if (ImGui.BeginDragDropTarget())
         {
             var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
             if (!payload.IsNull)
             {
-                var dragged = Engine.sceneManager.loadedScene.FindGameObject(*(int*)payload.Data);
+                var dragged = SceneManager.loadedScene.FindGameObject(*(int*)payload.Data);
                 if (dragged != null) dragged.transform.parent = null;
             }
             ImGui.EndDragDropTarget();
@@ -169,7 +168,7 @@ public unsafe class Editor
             var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
             if (!payload.IsNull)
             {
-                var dragged = Engine.sceneManager.loadedScene.FindGameObject(*(int*)payload.Data);
+                var dragged = SceneManager.loadedScene.FindGameObject(*(int*)payload.Data);
                 if (dragged != null && !dragged.transform.children.Contains(gameObject.transform)) dragged.transform.parent = gameObject.transform;
             }
             ImGui.EndDragDropTarget();

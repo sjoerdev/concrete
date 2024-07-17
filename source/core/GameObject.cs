@@ -17,7 +17,7 @@ public class GameObject
 
     public static GameObject Create()
     {
-        var scene = Engine.sceneManager.loadedScene;
+        var scene = SceneManager.loadedScene;
         var gameObject = new GameObject();
         gameObject.transform = gameObject.AddComponent<Transform>();
         gameObject.id = gameObject.GenerateID();

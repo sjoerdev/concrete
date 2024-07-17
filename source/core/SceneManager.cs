@@ -2,51 +2,51 @@ using System;
 
 namespace Concrete;
 
-public class SceneManager
+public static class SceneManager
 {
-    public Scene loadedScene = null;
-    public PlayerState playerState = PlayerState.stopped;
+    public static Scene loadedScene = null;
+    public static PlayerState playerState = PlayerState.stopped;
 
-    public void LoadScene(Scene scene)
+    public static void LoadScene(Scene scene)
     {
         loadedScene = scene;
     }
 
-    public void Play()
+    public static void Play()
     {
         Serialization.SaveScene("scene.bin", loadedScene);
         Start();
         playerState = PlayerState.playing;
     }
 
-    public void Pause()
+    public static void Pause()
     {
         playerState = PlayerState.paused;
     }
 
-    public void Continue()
+    public static void Continue()
     {
         playerState = PlayerState.playing;
     }
 
-    public void Stop()
+    public static void Stop()
     {
         playerState = PlayerState.stopped;
         loadedScene = Serialization.LoadScene("scene.bin");
     }
 
-    public void Start()
+    public static void Start()
     {
         loadedScene?.Start();
     }
 
-    public void TryUpdate(float deltaTime)
+    public static void TryUpdate(float deltaTime)
     {
         if (playerState != PlayerState.playing) return;
         loadedScene?.Update(deltaTime);
     }
 
-    public void Render(float deltaTime, Projection projection)
+    public static void Render(float deltaTime, Projection projection)
     {
         loadedScene?.Render(deltaTime, projection);
     }

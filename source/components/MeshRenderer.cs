@@ -47,7 +47,7 @@ public unsafe class MeshRenderer : Component
 
     private void SetLights()
     {
-        var lights = Engine.sceneManager.loadedScene.FindActiveLights();
+        var lights = SceneManager.loadedScene.FindActiveLights();
 
         var directionalLights = new List<DirectionalLight>();
         var pointLights = new List<PointLight>();

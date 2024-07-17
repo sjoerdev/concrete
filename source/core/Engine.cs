@@ -13,7 +13,6 @@ public static class Engine
     public static IWindow window;
     public static IInputContext input;
     public static ImGuiController igcontroller;
-    public static SceneManager sceneManager;
     public static Editor editor;
 
     static void Main()
@@ -37,13 +36,12 @@ public static class Engine
         opengl = GL.GetApi(window);
         input = window.CreateInput();
         igcontroller = new ImGuiController(opengl, window, input);
-        sceneManager = new SceneManager();
         editor = new Editor();
 
         // load debug scene --------
 
         var debugScene = new Scene();
-        sceneManager.LoadScene(debugScene);
+        SceneManager.LoadScene(debugScene);
 
         var cameraObject = GameObject.Create();
         cameraObject.AddComponent<Camera>();
@@ -61,7 +59,7 @@ public static class Engine
 
     static void UpdateWindow(double deltaTime)
     {
-        sceneManager.TryUpdate((float)deltaTime);
+        SceneManager.TryUpdate((float)deltaTime);
         editor.Update((float)deltaTime);
         igcontroller.Update((float)deltaTime);
     }
