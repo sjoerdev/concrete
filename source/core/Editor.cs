@@ -5,42 +5,31 @@ using Hexa.NET.ImGui;
 
 namespace Concrete;
 
-public unsafe class Editor
+public static unsafe class Editor
 {
-    bool dockbuilderInitialized = false;
-
-    int selectedGameObjectIdentifier;
-    GameObject selectedGameObject
+    private static int selectedGameObjectIdentifier;
+    private static GameObject selectedGameObject
     {
         get => SceneManager.loadedScene.FindGameObject(selectedGameObjectIdentifier);
         set => selectedGameObjectIdentifier = value.id;
     }
 
-    SceneProjection sceneProjection = null;
+    public static SceneProjection sceneProjection = new();
+    public static Framebuffer sceneWindowFramebuffer = new();
+    public static Framebuffer gameWindowFramebuffer = new();
+    
+    private static bool dockbuilderInitialized = false;
+    private static bool sceneWindowFocussed = false;
+    private static bool gameWindowFocussed = false;
 
-    bool sceneWindowFocussed = false;
-    public Framebuffer sceneWindowFramebuffer = null;
-
-    bool gameWindowFocussed = false;
-    public Framebuffer gameWindowFramebuffer = null;
-
-    public Editor()
-    {
-        gameWindowFramebuffer = new Framebuffer();
-        sceneWindowFramebuffer = new Framebuffer();
-        sceneProjection = new SceneProjection();
-        ImGui.GetIO().Handle->IniFilename = null;
-        ImGui.GetIO().ConfigFlags = ImGuiConfigFlags.DockingEnable;
-    }
-
-    public void Update(float deltaTime)
+    public static void Update(float deltaTime)
     {
         float sceneWindowAspect = (float)sceneWindowFramebuffer.size.X / (float)sceneWindowFramebuffer.size.Y;
         sceneProjection.UpdateProjection(sceneWindowAspect);
         if (sceneWindowFocussed) sceneProjection.ApplyMovement(deltaTime);
     }
 
-    public void Render(float deltaTime)
+    public static void Render(float deltaTime)
     {
         if (ImGui.BeginMainMenuBar())
         {
@@ -145,7 +134,7 @@ public unsafe class Editor
         ImGui.End();
     }
 
-    public void DrawHierarchyMember(GameObject gameObject)
+    public static void DrawHierarchyMember(GameObject gameObject)
     {
         int id = gameObject.id;
         ImGui.PushID(id);
@@ -180,7 +169,7 @@ public unsafe class Editor
         ImGui.PopID();
     }
 
-    public void DrawComponent(Component component)
+    public static void DrawComponent(Component component)
     {
         var type = component.GetType();
         if (ImGui.CollapsingHeader(type.Name))
@@ -192,7 +181,7 @@ public unsafe class Editor
         }
     }
 
-    private void DrawField(FieldInfo field, Component component)
+    private static void DrawField(FieldInfo field, Component component)
     {
         bool show = false;
         string showname = null;
@@ -240,7 +229,7 @@ public unsafe class Editor
         }
     }
 
-    private void DrawProperty(PropertyInfo property, Component component)
+    private static void DrawProperty(PropertyInfo property, Component component)
     {
         bool show = false;
         string showname = null;

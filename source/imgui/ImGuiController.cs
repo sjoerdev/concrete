@@ -35,7 +35,7 @@ public class ImGuiController : IDisposable
     private int width;
     private int height;
 
-    public ImGuiController(GL opengl, IView view, IInputContext input, Action onConfigureIO = null)
+    public unsafe ImGuiController(GL opengl, IView view, IInputContext input, Action onConfigureIO = null)
     {
         Init(opengl, view, input);
         var io = ImGui.GetIO();
@@ -44,6 +44,8 @@ public class ImGuiController : IDisposable
         CreateDeviceResources();
         SetPerFrameImGuiData(1f / 60f);
         BeginFrame();
+        ImGui.GetIO().Handle->IniFilename = null;
+        ImGui.GetIO().ConfigFlags = ImGuiConfigFlags.DockingEnable;
     }
 
     private void Init(GL opengl, IView view, IInputContext input)

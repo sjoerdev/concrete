@@ -13,11 +13,9 @@ public static class Engine
     public static IWindow window;
     public static IInputContext input;
     public static ImGuiController igcontroller;
-    public static Editor editor;
 
     static void Main()
     {
-        // setup window and callbacks
         var options = WindowOptions.Default;
         options.Size = new Vector2D<int>(1280, 720);
         options.Title = "untitled";
@@ -32,11 +30,10 @@ public static class Engine
 
     static void StartWindow()
     {
-        // create important objects
+        // instance important objects
         opengl = GL.GetApi(window);
         input = window.CreateInput();
         igcontroller = new ImGuiController(opengl, window, input);
-        editor = new Editor();
 
         // load debug scene --------
 
@@ -60,7 +57,7 @@ public static class Engine
     static void UpdateWindow(double deltaTime)
     {
         SceneManager.TryUpdate((float)deltaTime);
-        editor.Update((float)deltaTime);
+        Editor.Update((float)deltaTime);
         igcontroller.Update((float)deltaTime);
     }
 
@@ -69,8 +66,7 @@ public static class Engine
         opengl.Enable(EnableCap.DepthTest);
         opengl.ClearColor(Color.Black);
         opengl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-        editor.Render((float)deltaTime);
+        Editor.Render((float)deltaTime);
         igcontroller.Render();
     }
 
