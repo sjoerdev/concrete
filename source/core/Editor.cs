@@ -8,7 +8,13 @@ namespace GameEngine;
 public unsafe class Editor
 {
     bool dockbuilderInitialized = false;
-    GameObject selectedGameObject = null;
+
+    int selectedGameObjectIdentifier;
+    GameObject selectedGameObject
+    {
+        get => Engine.sceneManager.loadedScene.FindGameObject(selectedGameObjectIdentifier);
+        set => selectedGameObjectIdentifier = value.id;
+    }
 
     SceneProjection sceneProjection = null;
 
@@ -105,7 +111,7 @@ public unsafe class Editor
         gameWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         gameWindowFramebuffer.Bind();
         gameWindowFramebuffer.Clear(Color.DarkGray);
-        Engine.sceneManager.Render(deltaTime, Camera.main.projection);
+        Engine.sceneManager.Render(deltaTime, Engine.sceneManager.loadedScene.FindAnyCamera().Project());
         gameWindowFramebuffer.Unbind();
 
         ImGui.Image((nint)gameWindowFramebuffer.colorTexture, gameWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);

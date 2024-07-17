@@ -30,6 +30,21 @@ public class Scene
         return lights;
     }
 
+    public Camera FindAnyCamera()
+    {
+        foreach (var gameObject in gameObjects)
+        {
+            foreach (var component in gameObject.components)
+            {
+                if (component is Camera camera)
+                {
+                    return camera;
+                }
+            }
+        }
+        return null;
+    }
+
     public GameObject FindGameObject(int id)
     {
         GameObject result = null;
