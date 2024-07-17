@@ -1,7 +1,7 @@
 using System.Numerics;
 using Silk.NET.Input;
 
-namespace GameEngine;
+namespace Concrete;
 
 public class SceneProjection
 {

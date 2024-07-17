@@ -1,6 +1,6 @@
 using Ceras;
 
-namespace GameEngine;
+namespace Concrete;
 
 public static class Serialization
 {

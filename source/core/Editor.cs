@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Reflection;
 using Hexa.NET.ImGui;
 
-namespace GameEngine;
+namespace Concrete;
 
 public unsafe class Editor
 {

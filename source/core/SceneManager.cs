@@ -1,6 +1,6 @@
 using System;
 
-namespace GameEngine;
+namespace Concrete;
 
 public class SceneManager
 {

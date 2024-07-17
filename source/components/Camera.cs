@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace GameEngine;
+namespace Concrete;
 
 public class Camera : Component
 {

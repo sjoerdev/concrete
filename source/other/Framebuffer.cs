@@ -3,7 +3,7 @@ using System.Drawing;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
-namespace GameEngine;
+namespace Concrete;
 
 public unsafe class Framebuffer
 {

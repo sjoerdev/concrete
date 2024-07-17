@@ -1,7 +1,7 @@
 using System.Numerics;
 using Silk.NET.OpenGL;
 
-namespace GameEngine;
+namespace Concrete;
 
 public class Shader
 {

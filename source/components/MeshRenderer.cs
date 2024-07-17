@@ -6,7 +6,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace GameEngine;
+namespace Concrete;
 
 public unsafe class MeshRenderer : Component
 {

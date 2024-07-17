@@ -5,7 +5,7 @@ using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
 
-namespace GameEngine;
+namespace Concrete;
 
 public static class Engine
 {
