@@ -2,6 +2,7 @@ using System.Numerics;
 using System.Drawing;
 using System.Reflection;
 using Hexa.NET.ImGui;
+using Hexa.NET.ImGuizmo;
 
 namespace Concrete;
 
@@ -91,6 +92,25 @@ public static unsafe class Editor
         sceneWindowFramebuffer.Unbind();
 
         ImGui.Image((nint)sceneWindowFramebuffer.colorTexture, sceneWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
+
+        // imguizmo
+        if (selectedGameObject != null)
+        {
+            var position = ImGui.GetWindowPos();
+            var size = ImGui.GetWindowSize();
+            var rect = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+            Engine.opengl.Viewport(rect);
+
+            ImGuizmo.SetDrawlist();
+            ImGuizmo.SetRect(position.X, position.Y, size.X, size.Y);
+
+            Matrix4x4 worldModelMatrix = selectedGameObject.transform.GetWorldModelMatrix();
+            ImGuizmo.Manipulate(ref sceneProjection.projection.view, ref sceneProjection.projection.proj, ImGuizmoOperation.Translate, ImGuizmoMode.World, ref worldModelMatrix);
+            if (ImGuizmo.IsUsing()) selectedGameObject.transform.worldPosition = worldModelMatrix.Translation;
+
+            Engine.opengl.Viewport(Engine.window.Size);
+        }
+            
         ImGui.End();
 
         ImGui.Begin("Game", ImGuiWindowFlags.NoScrollbar);

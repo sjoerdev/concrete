@@ -6,17 +6,19 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Hexa.NET.ImGui;
+using Hexa.NET.ImGuizmo;
+using Hexa.NET.ImPlot;
 
-public class ImGuiController : IDisposable
+public unsafe class ImGuiController : IDisposable
 {
-    public ImGuiContextPtr context;
+    public ImGuiContextPtr guiContext;
+    public ImPlotContextPtr plotContext;
 
     private GL opengl;
     private IView view;
     private IInputContext input;
     private IKeyboard keyboard;
 
-    private bool framebegun;
     private readonly List<char> pressedchars = [];
 
     private int alocTex;
@@ -35,43 +37,63 @@ public class ImGuiController : IDisposable
     private int width;
     private int height;
 
-    public unsafe ImGuiController(GL opengl, IView view, IInputContext input, Action onConfigureIO = null)
+    public ImGuiController(GL opengl, IView view, IInputContext input)
     {
-        Init(opengl, view, input);
-        var io = ImGui.GetIO();
-        onConfigureIO?.Invoke();
-        io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
-        CreateDeviceResources();
-        SetPerFrameImGuiData(1f / 60f);
-        BeginFrame();
-        ImGui.GetIO().Handle->IniFilename = null;
-        ImGui.GetIO().ConfigFlags = ImGuiConfigFlags.DockingEnable;
-    }
-
-    private void Init(GL opengl, IView view, IInputContext input)
-    {
+        // init window
         this.opengl = opengl;
         this.view = view;
         this.input = input;
         width = view.Size.X;
         height = view.Size.Y;
-        context = ImGui.CreateContext();
-        ImGui.SetCurrentContext(context);
-        ImGui.StyleColorsDark();
-    }
-
-    private void BeginFrame()
-    {
-        ImGui.NewFrame();
-        framebegun = true;
         keyboard = input.Keyboards[0];
         view.Resize += WindowResized;
         keyboard.KeyChar += OnKeyChar;
+
+        // create contexts
+        guiContext = ImGui.CreateContext();
+        plotContext = ImPlot.CreateContext();
+        UpdateContexts();
+
+        // set flags
+        ImGui.GetIO().BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
+        
+        // set stuff
+        CreateDeviceResources();
+        SetPerFrameImGuiData(1f / 60f);
+
+        // other imgui settings
+        ImGui.GetIO().Handle->IniFilename = null;
+        ImGui.GetIO().ConfigFlags = ImGuiConfigFlags.DockingEnable;
+        ImGui.StyleColorsDark();
     }
 
-    private void OnKeyChar(IKeyboard arg1, char arg2)
+    public void Update(float deltaTime)
     {
-        pressedchars.Add(arg2);
+        UpdateContexts();
+        SetPerFrameImGuiData(deltaTime);
+        UpdateImGuiInput();
+        ImGui.NewFrame();
+        ImGuizmo.BeginFrame();
+    }
+
+    public void Render()
+    {
+        ImGui.Render();
+        ImGui.EndFrame();
+        RenderImDrawData(ImGui.GetDrawData());
+    }
+
+    public void UpdateContexts()
+    {
+        ImGui.SetCurrentContext(guiContext);
+        ImGuizmo.SetImGuiContext(guiContext);
+        ImPlot.SetImGuiContext(guiContext);
+        ImPlot.SetCurrentContext(plotContext);
+    }
+
+    private void OnKeyChar(IKeyboard keyboard, char character)
+    {
+        pressedchars.Add(character);
     }
 
     private void WindowResized(Vector2D<int> size)
@@ -79,74 +101,13 @@ public class ImGuiController : IDisposable
         width = size.X;
         height = size.Y;
     }
-    
-    public unsafe void Render()
-    {
-        if (framebegun)
-        {
-            var oldCtx = ImGui.GetCurrentContext();
 
-            if (oldCtx != context)
-            {
-                ImGui.SetCurrentContext(context);
-            }
-
-            framebegun = false;
-            ImGui.Render();
-            RenderImDrawData(ImGui.GetDrawData());
-
-            if (oldCtx != context)
-            {
-                ImGui.SetCurrentContext(oldCtx);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Updates ImGui input and IO configuration state.
-    /// </summary>
-    public void Update(float deltaSeconds)
-    {
-        var oldCtx = ImGui.GetCurrentContext();
-
-        if (oldCtx != context)
-        {
-            ImGui.SetCurrentContext(context);
-        }
-
-        if (framebegun)
-        {
-            ImGui.Render();
-        }
-
-        SetPerFrameImGuiData(deltaSeconds);
-        UpdateImGuiInput();
-
-        framebegun = true;
-        ImGui.NewFrame();
-
-        if (oldCtx != context)
-        {
-            ImGui.SetCurrentContext(oldCtx);
-        }
-    }
-
-    /// <summary>
-    /// Sets per-frame data based on the associated window.
-    /// This is called by Update(float).
-    /// </summary>
     private void SetPerFrameImGuiData(float deltaSeconds)
     {
         var io = ImGui.GetIO();
         io.DisplaySize = new Vector2(width, height);
-
-        if (width > 0 && height > 0)
-        {
-            io.DisplayFramebufferScale = new Vector2(view.FramebufferSize.X / width,
-                view.FramebufferSize.Y / height);
-        }
-
-        io.DeltaTime = deltaSeconds; // DeltaTime is in seconds.
+        if (width > 0 && height > 0) io.DisplayFramebufferScale = new Vector2(view.FramebufferSize.X / width, view.FramebufferSize.Y / height);
+        io.DeltaTime = deltaSeconds;
     }
 
     private void UpdateImGuiInput()
@@ -590,6 +551,6 @@ public class ImGuiController : IDisposable
         fontTexture.Dispose();
         shader.Dispose();
 
-        ImGui.DestroyContext(context);
+        ImGui.DestroyContext(guiContext);
     }
 }
