@@ -11,8 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ceras" Version="4.1.7" />
     <PackageReference Include="Hexa.NET.ImGui" Version="1.0.4" />
+    <PackageReference Include="Hexa.NET.ImGuizmo" Version="1.0.4" />
+    <PackageReference Include="Hexa.NET.ImPlot" Version="1.0.4" />
     <PackageReference Include="Silk.NET.Assimp" Version="2.21.0" />
     <PackageReference Include="Silk.NET.Input" Version="2.21.0" />
     <PackageReference Include="Silk.NET.Input.Extensions" Version="2.21.0" />
@@ -20,6 +21,7 @@
     <PackageReference Include="Silk.NET.OpenGL" Version="2.21.0" />
     <PackageReference Include="Silk.NET.Windowing" Version="2.21.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
+    <PackageReference Include="Ceras" Version="4.1.7" />
   </ItemGroup>
 
 </Project>
