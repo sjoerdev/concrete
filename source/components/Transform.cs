@@ -207,6 +207,32 @@ public class Transform : Component
         return scale * rotation * translation;
     }
 
+    public void SetWorldModelMatrix(Matrix4x4 matrix)
+    {
+        var translation = new Vector3(matrix.M41, matrix.M42, matrix.M43);
+
+        var scale = new Vector3
+        (
+            new Vector3(matrix.M11, matrix.M12, matrix.M13).Length(),
+            new Vector3(matrix.M21, matrix.M22, matrix.M23).Length(),
+            new Vector3(matrix.M31, matrix.M32, matrix.M33).Length()
+        );
+
+        var rotationMatrix = new Matrix4x4
+        (
+            matrix.M11 / scale.X, matrix.M12 / scale.X, matrix.M13 / scale.X, 0,
+            matrix.M21 / scale.Y, matrix.M22 / scale.Y, matrix.M23 / scale.Y, 0,
+            matrix.M31 / scale.Z, matrix.M32 / scale.Z, matrix.M33 / scale.Z, 0,
+            0, 0, 0, 1
+        );
+
+        var rotation = Quaternion.CreateFromRotationMatrix(rotationMatrix);
+
+        worldPosition = translation;
+        worldScale = scale;
+        worldQuaternion = rotation;
+    }
+
     private Vector3 GetEulerAnglesFromQuaternion(Quaternion quaternion)
     {
         Vector3 angles;

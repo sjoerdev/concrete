@@ -106,7 +106,7 @@ public static unsafe class Editor
 
             Matrix4x4 worldModelMatrix = selectedGameObject.transform.GetWorldModelMatrix();
             ImGuizmo.Manipulate(ref sceneProjection.projection.view, ref sceneProjection.projection.proj, ImGuizmoOperation.Translate, ImGuizmoMode.World, ref worldModelMatrix);
-            if (ImGuizmo.IsUsing()) selectedGameObject.transform.worldPosition = worldModelMatrix.Translation;
+            if (ImGuizmo.IsUsing()) selectedGameObject.transform.SetWorldModelMatrix(worldModelMatrix);
 
             Engine.opengl.Viewport(Engine.window.Size);
         }
