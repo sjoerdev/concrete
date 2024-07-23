@@ -23,6 +23,8 @@ public static unsafe class Editor
     private static bool sceneWindowFocussed = false;
     private static bool gameWindowFocussed = false;
 
+    private static ImGuizmoOperation guizmoOperation = ImGuizmoOperation.Translate;
+
     public static void Update(float deltaTime)
     {
         float sceneWindowAspect = (float)sceneWindowFramebuffer.size.X / (float)sceneWindowFramebuffer.size.Y;
@@ -36,9 +38,27 @@ public static unsafe class Editor
         {
             float buttonWidth = 64;
             float spacing = ImGui.GetStyle().ItemSpacing.X;
-            float half = Engine.window.Size.X / 2;
-            ImGui.SetCursorPosX(half - buttonWidth * 1.5f - spacing);
+            float full = Engine.window.Size.X;
+            float half = full / 2;
             var size = new Vector2(buttonWidth, 0);
+
+            // guizmo operation buttons
+            ImGui.SetCursorPosX(full - (3 * buttonWidth) - (3 * spacing));
+
+            ImGui.BeginDisabled(guizmoOperation == ImGuizmoOperation.Translate);
+            if (ImGui.Button("move", size)) guizmoOperation = ImGuizmoOperation.Translate;
+            ImGui.EndDisabled();
+
+            ImGui.BeginDisabled(guizmoOperation == ImGuizmoOperation.Rotate);
+            if (ImGui.Button("rotate", size)) guizmoOperation = ImGuizmoOperation.Rotate;
+            ImGui.EndDisabled();
+
+            ImGui.BeginDisabled(guizmoOperation == ImGuizmoOperation.Scale);
+            if (ImGui.Button("scale", size)) guizmoOperation = ImGuizmoOperation.Scale;
+            ImGui.EndDisabled();
+
+            // playerstate buttons
+            ImGui.SetCursorPosX(half - buttonWidth * 1.5f - spacing);
 
             var stopped = SceneManager.playerState == PlayerState.stopped;
             var playing = SceneManager.playerState == PlayerState.playing;
@@ -105,7 +125,7 @@ public static unsafe class Editor
             ImGuizmo.SetRect(position.X, position.Y, size.X, size.Y);
 
             Matrix4x4 worldModelMatrix = selectedGameObject.transform.GetWorldModelMatrix();
-            ImGuizmo.Manipulate(ref sceneProjection.projection.view, ref sceneProjection.projection.proj, ImGuizmoOperation.Translate, ImGuizmoMode.World, ref worldModelMatrix);
+            ImGuizmo.Manipulate(ref sceneProjection.projection.view, ref sceneProjection.projection.proj, guizmoOperation, ImGuizmoMode.World, ref worldModelMatrix);
             if (ImGuizmo.IsUsing()) selectedGameObject.transform.SetWorldModelMatrix(worldModelMatrix);
 
             Engine.opengl.Viewport(Engine.window.Size);
