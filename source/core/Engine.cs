@@ -42,7 +42,6 @@ public static class Engine
 
         var cameraObject = GameObject.Create();
         cameraObject.AddComponent<Camera>();
-        cameraObject.AddComponent<SpotLight>();
         cameraObject.transform.localPosition = new Vector3(0, 1, -2);
 
         var firstModel = GameObject.Create();
@@ -52,6 +51,10 @@ public static class Engine
         secondModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
         secondModel.transform.localPosition = new Vector3(1, 1, 0);
         secondModel.transform.parent = firstModel.transform;
+
+        var lightObject = GameObject.Create();
+        lightObject.AddComponent<DirectionalLight>();
+        lightObject.transform.localEulerAngles = new Vector3(20, 135, 0);
     }
 
     static void UpdateWindow(double deltaTime)

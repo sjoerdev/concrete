@@ -8,8 +8,9 @@ public class SceneProjection
     public Projection projection = new Projection();
     public float fov = 90;
 
-    public Vector3 position = Vector3.Zero;
-    public Vector3 rotation = Vector3.Zero;
+    public Vector3 position = new(-0.4f, 1.6f, 1.6f);
+    public Vector3 rotation = new(10, 155, 0);
+
     public Vector3 forward => LocalDirection(Vector3.UnitZ);
     public Vector3 up => LocalDirection(Vector3.UnitY);
     public Vector3 right => LocalDirection(Vector3.UnitX);
