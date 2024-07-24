@@ -125,9 +125,7 @@ public unsafe class MeshRenderer : Component
     private void RenderMesh(Mesh meshToRender)
     {
         opengl.BindVertexArray(meshToRender.vao);
-        opengl.BindBuffer(GLEnum.ElementArrayBuffer, meshToRender.ebo);
         opengl.DrawElements(GLEnum.Triangles, meshToRender.indicesCount, DrawElementsType.UnsignedInt, null);
-        opengl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
         opengl.BindVertexArray(0);
     }
 
@@ -145,8 +143,10 @@ public unsafe class MeshRenderer : Component
         // cast vertices data to floats
         var vertices = ToFloats(assimpdata.vertices);
 
-        // bind vao, vbo, ebo
+        // bind vao
         opengl.BindVertexArray(mesh.vao);
+
+        // bind vbo and ebo to vao
         opengl.BindBuffer(GLEnum.ArrayBuffer, mesh.vbo);
         opengl.BindBuffer(GLEnum.ElementArrayBuffer, mesh.ebo);
 
@@ -162,9 +162,7 @@ public unsafe class MeshRenderer : Component
         opengl.EnableVertexAttribArray(2);
         opengl.VertexAttribPointer(2, 2, GLEnum.Float, false, (uint)sizeof(Vertex), (void*)(6 * sizeof(float)));
         
-        // unbind
-        opengl.BindBuffer(GLEnum.ArrayBuffer, 0);
-        opengl.BindBuffer(GLEnum.ElementArrayBuffer, 0);
+        // unbind vao
         opengl.BindVertexArray(0);
     }
 
