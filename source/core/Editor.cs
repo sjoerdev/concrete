@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Reflection;
 using Hexa.NET.ImGui;
 using Hexa.NET.ImGuizmo;
+using Hexa.NET.ImPlot;
 
 namespace Concrete;
 
@@ -25,8 +26,11 @@ public static unsafe class Editor
 
     private static ImGuizmoOperation guizmoOperation = ImGuizmoOperation.Translate;
 
+    private static List<float> frametimes = [];
+
     public static void Update(float deltaTime)
     {
+        frametimes.Add(deltaTime * 1000f);
         float sceneWindowAspect = (float)sceneWindowFramebuffer.size.X / (float)sceneWindowFramebuffer.size.Y;
         sceneProjection.UpdateProjection(sceneWindowAspect);
         if (sceneWindowFocussed) sceneProjection.ApplyMovement(deltaTime);
@@ -91,13 +95,16 @@ public static unsafe class Editor
         if (!dockbuilderInitialized)
         {
             int leftdock, rightdock = 0;
+            int bottomleftdock, topleftdock = 0;
             ImGui.DockBuilderSplitNode(dockspace, ImGuiDir.Left, 0.25f, &leftdock, &rightdock);
-            int topleftdock, bottomleftdock = 0;
-            ImGui.DockBuilderSplitNode(leftdock, ImGuiDir.Up, 0.5f, &bottomleftdock, &topleftdock);
+            ImGui.DockBuilderSplitNode(leftdock, ImGuiDir.Up, 0.5f, &topleftdock, &bottomleftdock);
+
             ImGui.DockBuilderDockWindow("Scene", rightdock);
             ImGui.DockBuilderDockWindow("Game", rightdock);
-            ImGui.DockBuilderDockWindow("Hierarchy", topleftdock);
-            ImGui.DockBuilderDockWindow("Inspector", bottomleftdock);
+            ImGui.DockBuilderDockWindow("Hierarchy", bottomleftdock);
+            ImGui.DockBuilderDockWindow("Inspector", topleftdock);
+            ImGui.DockBuilderDockWindow("Metrics", topleftdock);
+
             ImGui.DockBuilderFinish(dockspace);
             dockbuilderInitialized = true;
         }
@@ -170,6 +177,30 @@ public static unsafe class Editor
             ImGui.InputText("", ref selectedGameObject.name, 100);
             ImGui.Separator();
             foreach (var component in selectedGameObject.components) DrawComponent(component);
+        }
+        ImGui.End();
+
+        ImGui.Begin("Metrics", ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoScrollbar);
+
+        // frametime graph
+        if (ImPlot.BeginPlot("frametime (ms)", ImPlotFlags.NoLegend | ImPlotFlags.NoMouseText | ImPlotFlags.NoInputs | ImPlotFlags.NoFrame))
+        {
+            int frameAmount = 512;
+
+            // setup axis
+            var xflags = ImPlotAxisFlags.NoLabel | ImPlotAxisFlags.NoTickLabels | ImPlotAxisFlags.NoTickMarks | ImPlotAxisFlags.NoGridLines;
+            var yflags = ImPlotAxisFlags.NoLabel;
+            ImPlot.SetupAxes("frame", "time (ms)", xflags, yflags);
+            ImPlot.SetupAxesLimits(0, frameAmount, 0, 40);
+            
+            // plot frames when ready
+            if (frametimes.Count > frameAmount)
+            {
+                float[] last = frametimes.Skip(frametimes.Count - frameAmount).ToArray();
+                ImPlot.PlotLine("frametime", ref last[0], frameAmount, ImPlotLineFlags.Shaded);
+            }
+
+            ImPlot.EndPlot();
         }
         ImGui.End();
     }
