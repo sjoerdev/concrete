@@ -59,6 +59,7 @@ public static class Engine
 
     static void UpdateWindow(double deltaTime)
     {
+        Metrics.Update((float)deltaTime);
         SceneManager.TryUpdate((float)deltaTime);
         Editor.Update((float)deltaTime);
         igcontroller.Update((float)deltaTime);

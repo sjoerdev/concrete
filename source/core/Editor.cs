@@ -26,28 +26,8 @@ public static unsafe class Editor
 
     private static ImGuizmoOperation guizmoOperation = ImGuizmoOperation.Translate;
 
-    private static float timer = 0;
-
-    private static List<float> framerates = [];
-    private static List<float> frametimes = [];
-
-    private static float averageframerate = 0;
-    private static float averageframetime = 0;
-
     public static void Update(float deltaTime)
     {
-        frametimes.Add(deltaTime * 1000f);
-        framerates.Add(1 / deltaTime);
-
-        timer += deltaTime;
-        if (timer > 1)
-        {
-            int framesToAverage = 200;
-            averageframerate = framerates.Skip(framerates.Count - framesToAverage).Average();
-            averageframetime = frametimes.Skip(frametimes.Count - framesToAverage).Average();
-            timer = 0;
-        }
-
         float sceneWindowAspect = (float)sceneWindowFramebuffer.size.X / (float)sceneWindowFramebuffer.size.Y;
         sceneProjection.UpdateProjection(sceneWindowAspect);
         if (sceneWindowFocussed) sceneProjection.ApplyMovement(deltaTime);
@@ -200,42 +180,36 @@ public static unsafe class Editor
         ImGui.Begin("Metrics", ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoScrollbar);
 
         // frametime graph
-        if (ImPlot.BeginPlot("frametime: " + (int)averageframetime + "ms", new(-1, 128), ImPlotFlags.NoLegend | ImPlotFlags.NoMouseText | ImPlotFlags.NoInputs | ImPlotFlags.NoFrame))
+        if (ImPlot.BeginPlot("frametime: " + (int)Metrics.averageFrameTime + "ms", new(-1, 128), ImPlotFlags.NoLegend | ImPlotFlags.NoMouseText | ImPlotFlags.NoInputs | ImPlotFlags.NoFrame))
         {
-            int frameAmount = 512;
-
             // setup axis
             var xflags = ImPlotAxisFlags.NoLabel | ImPlotAxisFlags.NoTickLabels | ImPlotAxisFlags.NoTickMarks | ImPlotAxisFlags.NoGridLines;
             var yflags = ImPlotAxisFlags.NoLabel;
             ImPlot.SetupAxes("frame", "time (ms)", xflags, yflags);
-            ImPlot.SetupAxesLimits(0, frameAmount, 0, 40);
+            ImPlot.SetupAxesLimits(0, Metrics.framesToCheck, 0, 40);
             
             // plot frames when ready
-            if (frametimes.Count > frameAmount)
+            if (Metrics.dataIsReady)
             {
-                float[] array = frametimes.Skip(frametimes.Count - frameAmount).ToArray();
-                ImPlot.PlotLine("frametime", ref array[0], frameAmount, ImPlotLineFlags.Shaded);
+                ImPlot.PlotLine("frametime", ref Metrics.lastFrameTimes[0], Metrics.framesToCheck, ImPlotLineFlags.Shaded);
             }
 
             ImPlot.EndPlot();
         }
 
         // framerate graph
-        if (ImPlot.BeginPlot("framerate: " + (int)averageframerate + "fps", new(-1, 128), ImPlotFlags.NoLegend | ImPlotFlags.NoMouseText | ImPlotFlags.NoInputs | ImPlotFlags.NoFrame))
+        if (ImPlot.BeginPlot("framerate: " + (int)Metrics.averageFrameRate + "fps", new(-1, 128), ImPlotFlags.NoLegend | ImPlotFlags.NoMouseText | ImPlotFlags.NoInputs | ImPlotFlags.NoFrame))
         {
-            int frameAmount = 512;
-            
             // setup axis
             var xflags = ImPlotAxisFlags.NoLabel | ImPlotAxisFlags.NoTickLabels | ImPlotAxisFlags.NoTickMarks | ImPlotAxisFlags.NoGridLines;
             var yflags = ImPlotAxisFlags.NoLabel;
             ImPlot.SetupAxes("frame", "rate (fps)", xflags, yflags);
-            ImPlot.SetupAxesLimits(0, frameAmount, 0, 512);
+            ImPlot.SetupAxesLimits(0, Metrics.framesToCheck, 0, 512);
             
             // plot frames when ready
-            if (framerates.Count > frameAmount)
+            if (Metrics.dataIsReady)
             {
-                float[] array = framerates.Skip(framerates.Count - frameAmount).ToArray();
-                ImPlot.PlotLine("framerate", ref array[0], frameAmount, ImPlotLineFlags.Shaded);
+                ImPlot.PlotLine("framerate", ref Metrics.lastFrameRates[0], Metrics.framesToCheck, ImPlotLineFlags.Shaded);
             }
 
             ImPlot.EndPlot();
