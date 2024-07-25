@@ -235,7 +235,7 @@ public static unsafe class Editor
             ImGui.Text(gameObject.name);
             ImGui.EndDragDropSource();
         }
-
+        
         if (ImGui.BeginDragDropTarget())
         {
             var payload = ImGui.AcceptDragDropPayload(nameof(GameObject));
@@ -247,9 +247,15 @@ public static unsafe class Editor
             ImGui.EndDragDropTarget();
         }
 
-        if (open) foreach (var child in gameObject.transform.children) DrawHierarchyMember(child.gameObject);
+        if (open)
+        {
+            foreach (var child in gameObject.transform.children)
+            {
+                DrawHierarchyMember(child.gameObject);
+            }
+            ImGui.TreePop();
+        }
 
-        ImGui.TreePop();
         ImGui.PopID();
     }
 
