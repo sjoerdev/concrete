@@ -37,24 +37,33 @@ public static class Engine
 
         // load debug scene --------
 
-        var debugScene = new Scene();
-        SceneManager.LoadScene(debugScene);
+        SceneManager.LoadScene(new Scene());
 
         var cameraObject = GameObject.Create();
         cameraObject.AddComponent<Camera>();
         cameraObject.transform.localPosition = new Vector3(0, 1, -2);
+        cameraObject.name = "Camera";
 
         var firstModel = GameObject.Create();
         firstModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
+        firstModel.name = "Model 1";
 
         var secondModel = GameObject.Create();
         secondModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
         secondModel.transform.localPosition = new Vector3(1, 1, 0);
         secondModel.transform.parent = firstModel.transform;
+        secondModel.name = "Model 2";
+
+        var thirdModel = GameObject.Create();
+        thirdModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
+        thirdModel.transform.localPosition = new Vector3(-1, 0, 0);
+        thirdModel.transform.parent = secondModel.transform;
+        thirdModel.name = "Model 3";
 
         var lightObject = GameObject.Create();
         lightObject.AddComponent<DirectionalLight>();
         lightObject.transform.localEulerAngles = new Vector3(20, 135, 0);
+        lightObject.name = "Light";
     }
 
     static void UpdateWindow(double deltaTime)
