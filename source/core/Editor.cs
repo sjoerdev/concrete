@@ -26,6 +26,8 @@ public static unsafe class Editor
 
     private static ImGuizmoOperation guizmoOperation = ImGuizmoOperation.Translate;
 
+    private static List<(GameObject, GameObject)> reparentque = [];
+
     public static void Update(float deltaTime)
     {
         float sceneWindowAspect = (float)sceneWindowFramebuffer.size.X / (float)sceneWindowFramebuffer.size.Y;
@@ -35,6 +37,17 @@ public static unsafe class Editor
 
     public static void Render(float deltaTime)
     {
+        // deal with reparent que
+        foreach (var tuple in reparentque)
+        {
+            var first = tuple.Item1;
+            var second = tuple.Item2;
+            if (second == null) first.transform.parent = null;
+            else first.transform.parent = second.transform;
+        }
+        reparentque.Clear();
+
+        // begin main menu bar
         if (ImGui.BeginMainMenuBar())
         {
             float buttonWidth = 64;
@@ -158,7 +171,7 @@ public static unsafe class Editor
             if (!payload.IsNull)
             {
                 var dragged = SceneManager.loadedScene.FindGameObject(*(int*)payload.Data);
-                if (dragged != null) dragged.transform.parent = null;
+                if (dragged != null) reparentque.Add((dragged, null));
             }
             ImGui.EndDragDropTarget();
         }
@@ -242,7 +255,7 @@ public static unsafe class Editor
             if (!payload.IsNull)
             {
                 var dragged = SceneManager.loadedScene.FindGameObject(*(int*)payload.Data);
-                if (dragged != null && !dragged.transform.children.Contains(gameObject.transform)) dragged.transform.parent = gameObject.transform;
+                if (dragged != null && !dragged.transform.children.Contains(gameObject.transform)) reparentque.Add((dragged, gameObject));
             }
             ImGui.EndDragDropTarget();
         }
