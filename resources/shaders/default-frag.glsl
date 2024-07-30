@@ -88,6 +88,8 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragpos, vec3 viewdir)
 
 void main()
 {
+    vec3 nnormal = normalize(normal);
+
     vec3 viewdir = normalize(viewpos - fragpos);
 
     vec3 albedo = texture(tex, uv).rgb;
@@ -96,15 +98,15 @@ void main()
 
     // Directional lights
     for(int i = 0; i < dirLights.length(); i++)
-        light += CalcDirectionalLight(dirLights[i], normal, viewdir);
+        light += CalcDirectionalLight(dirLights[i], nnormal, viewdir);
     
     // Point lights
     for(int i = 0; i < pointLights.length(); i++)
-        light += CalcPointLight(pointLights[i], normal, fragpos, viewdir);
+        light += CalcPointLight(pointLights[i], nnormal, fragpos, viewdir);
     
     // Spot lights
     for(int i = 0; i < spotLights.length(); i++)
-        light += CalcSpotLight(spotLights[i], normal, fragpos, viewdir);
+        light += CalcSpotLight(spotLights[i], nnormal, fragpos, viewdir);
 
     color = vec4(albedo * light, 1.0);
 }
