@@ -45,25 +45,27 @@ public static class Engine
         cameraObject.name = "Camera";
 
         var firstModel = GameObject.Create();
-        firstModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
-        firstModel.name = "Model 1";
+        firstModel.AddComponent<MeshRenderer>().modelPath = "resources/models/cesium.glb";
+        firstModel.name = "Cesium Model";
 
         var secondModel = GameObject.Create();
-        secondModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
+        secondModel.AddComponent<MeshRenderer>().modelPath = "resources/models/helmet.glb";
         secondModel.transform.localPosition = new Vector3(1, 1, 0);
+        secondModel.transform.localEulerAngles = new Vector3(0, 180, 0);
+        secondModel.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
         secondModel.transform.parent = firstModel.transform;
-        secondModel.name = "Model 2";
+        secondModel.name = "Helmet Model";
 
         var thirdModel = GameObject.Create();
-        thirdModel.AddComponent<MeshRenderer>().modelPath = "resources/models/testmodel.glb";
+        thirdModel.AddComponent<MeshRenderer>().modelPath = "resources/models/robot.glb";
         thirdModel.transform.localPosition = new Vector3(-1, 0, 0);
         thirdModel.transform.parent = secondModel.transform;
-        thirdModel.name = "Model 3";
+        thirdModel.name = "Robot Model";
 
         var lightObject = GameObject.Create();
         lightObject.AddComponent<DirectionalLight>();
         lightObject.transform.localEulerAngles = new Vector3(20, 135, 0);
-        lightObject.name = "Light";
+        lightObject.name = "Directional Light";
     }
 
     static void UpdateWindow(double deltaTime)
