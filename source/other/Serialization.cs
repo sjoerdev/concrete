@@ -1,4 +1,4 @@
-using Ceras;
+global using Ceras;
 
 namespace Concrete;
 
@@ -6,7 +6,7 @@ public static class Serialization
 {
     private static SerializerConfig config = new()
     {
-        DefaultTargets = TargetMember.PublicProperties | TargetMember.PublicFields,
+        DefaultTargets = TargetMember.None,
     };
 
     public static void SaveScene(string path, Scene scene)

@@ -4,7 +4,7 @@ namespace Concrete;
 
 public class Camera : Component
 {
-    [Show] public float fov = 90;
+    [Include] [Show] public float fov = 90;
 
     public Projection Project()
     {

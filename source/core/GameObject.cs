@@ -4,11 +4,11 @@ namespace Concrete;
 
 public class GameObject
 {
-    public int id;
-    public string name;
-    public bool enabled;
-    public Transform transform;
-    public List<Component> components = [];
+    [Include] public int id;
+    [Include] public string name;
+    [Include] public bool enabled;
+    [Include] public Transform transform;
+    [Include] public List<Component> components = [];
 
     public GameObject()
     {

@@ -4,7 +4,7 @@ namespace Concrete;
 
 public class Component
 {
-    public GameObject gameObject;
+    [Include] public GameObject gameObject;
 
     public virtual void Start()
     {

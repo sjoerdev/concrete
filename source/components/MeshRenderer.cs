@@ -10,7 +10,7 @@ namespace Concrete;
 
 public unsafe class MeshRenderer : Component
 {
-    public string modelPath
+    [Include] public string modelPath
     {
         get => currentModelPath;
         set => ChangeModelPath(value);

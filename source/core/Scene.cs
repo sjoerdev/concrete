@@ -4,7 +4,7 @@ namespace Concrete;
 
 public class Scene
 {
-    public List<GameObject> gameObjects = [];
+    [Include] public List<GameObject> gameObjects = [];
 
     public Scene()
     {
