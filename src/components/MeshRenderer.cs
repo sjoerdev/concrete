@@ -25,7 +25,7 @@ public unsafe class MeshRenderer : Component
     public MeshRenderer()
     {
         opengl = Engine.opengl;
-        shader = new Shader("resources/shaders/default-vert.glsl", "resources/shaders/default-frag.glsl");
+        shader = new Shader("res/shaders/default-vert.glsl", "res/shaders/default-frag.glsl");
     }
 
     public override void Render(float deltaTime, Projection projection)

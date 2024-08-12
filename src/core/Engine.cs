@@ -18,7 +18,7 @@ public static class Engine
     {
         var options = WindowOptions.Default;
         options.Size = new Vector2D<int>(1280, 720);
-        options.Title = "untitled";
+        options.Title = "Concrete";
         window = Window.Create(options);
         window.Load += StartWindow;
         window.Update += UpdateWindow;
@@ -45,11 +45,11 @@ public static class Engine
         cameraObject.name = "Camera";
 
         var firstModel = GameObject.Create();
-        firstModel.AddComponent<MeshRenderer>().modelPath = "resources/models/cesium.glb";
+        firstModel.AddComponent<MeshRenderer>().modelPath = "res/models/cesium.glb";
         firstModel.name = "Cesium Model";
 
         var secondModel = GameObject.Create();
-        secondModel.AddComponent<MeshRenderer>().modelPath = "resources/models/helmet.glb";
+        secondModel.AddComponent<MeshRenderer>().modelPath = "res/models/helmet.glb";
         secondModel.transform.localPosition = new Vector3(1, 1, 0);
         secondModel.transform.localEulerAngles = new Vector3(0, 180, 0);
         secondModel.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
@@ -57,7 +57,7 @@ public static class Engine
         secondModel.name = "Helmet Model";
 
         var thirdModel = GameObject.Create();
-        thirdModel.AddComponent<MeshRenderer>().modelPath = "resources/models/robot.glb";
+        thirdModel.AddComponent<MeshRenderer>().modelPath = "res/models/robot.glb";
         thirdModel.transform.localPosition = new Vector3(-1, 0, 0);
         thirdModel.transform.parent = secondModel.transform;
         thirdModel.name = "Robot Model";
