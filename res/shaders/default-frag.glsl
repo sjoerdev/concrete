@@ -7,7 +7,9 @@ in vec3 viewpos;
 
 out vec4 color;
 
-uniform sampler2D tex;
+uniform vec4 matColor;
+uniform bool matHasAlbedoTexture;
+uniform sampler2D matAlbedoTexture;
 
 struct DirectionalLight
 {
@@ -88,25 +90,17 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragpos, vec3 viewdir)
 
 void main()
 {
-    vec3 nnormal = normalize(normal);
-
     vec3 viewdir = normalize(viewpos - fragpos);
 
-    vec3 albedo = texture(tex, uv).rgb;
+    // apply material
+    vec3 albedo = matColor.rgb;
+    if (matHasAlbedoTexture) albedo *= texture(matAlbedoTexture, uv).rgb;
 
+    // calc lighting
     vec3 light = vec3(0);
-
-    // Directional lights
-    for(int i = 0; i < dirLights.length(); i++)
-        light += CalcDirectionalLight(dirLights[i], nnormal, viewdir);
-    
-    // Point lights
-    for(int i = 0; i < pointLights.length(); i++)
-        light += CalcPointLight(pointLights[i], nnormal, fragpos, viewdir);
-    
-    // Spot lights
-    for(int i = 0; i < spotLights.length(); i++)
-        light += CalcSpotLight(spotLights[i], nnormal, fragpos, viewdir);
+    for(int i = 0; i < dirLights.length(); i++) light += CalcDirectionalLight(dirLights[i], normal, viewdir);
+    for(int i = 0; i < pointLights.length(); i++) light += CalcPointLight(pointLights[i], normal, fragpos, viewdir);
+    for(int i = 0; i < spotLights.length(); i++) light += CalcSpotLight(spotLights[i], normal, fragpos, viewdir);
 
     color = vec4(albedo * light, 1.0);
 }
