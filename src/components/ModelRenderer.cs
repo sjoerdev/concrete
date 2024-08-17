@@ -39,10 +39,17 @@ public unsafe class ModelRenderer : Component
         foreach (var mesh in model.meshes)
         {
             var material = model.materials[(int)mesh.materialIndex];
-            var hasAlbedo = material.albedoTexture != null;
+
             shader.SetVector4("matColor", material.color);
+
+            var hasAlbedo = material.albedoTexture != null;
             shader.SetBool("matHasAlbedoTexture", hasAlbedo);
-            if (hasAlbedo) shader.SetTexture("matAlbedoTexture", (uint)material.albedoTexture, 0);
+            if (hasAlbedo) shader.SetTexture("matAlbedoTexture", (uint)material.albedoTexture, 2);
+
+            var hasRoughness = material.roughnessTexture != null;
+            shader.SetBool("matHasRoughnessTexture", hasRoughness);
+            if (hasRoughness) shader.SetTexture("matRoughnessTexture", (uint)material.roughnessTexture, 3);
+
             mesh.Render();
         }
     }
@@ -105,7 +112,11 @@ public unsafe class ModelRenderer : Component
 
             // albedo texture
             var assimpAlbedoTexture = FindTexOfType(TextureType.Diffuse, assimp, assimpScene, assimpMaterial);
-            if (assimpAlbedoTexture != null) tempMaterial.albedoTexture = GenAssimpTex(assimpAlbedoTexture);
+            if (assimpAlbedoTexture != null) tempMaterial.albedoTexture = GenAssimpTex(assimpAlbedoTexture, 2);
+
+            // roughness texture
+            var assimpRoughnessTexture = FindTexOfType(TextureType.DiffuseRoughness, assimp, assimpScene, assimpMaterial);
+            if (assimpRoughnessTexture != null) tempMaterial.roughnessTexture = GenAssimpTex(assimpRoughnessTexture, 3);
 
             tempModel.materials.Add(tempMaterial);
         }
@@ -115,38 +126,30 @@ public unsafe class ModelRenderer : Component
         return tempModel;
     }
 
-    private uint? GenAssimpTex(Silk.NET.Assimp.Texture* assimpTexture)
+    private uint GenAssimpTex(Silk.NET.Assimp.Texture* assimpTexture, int unit)
     {
-        uint? result = null;
-        var format = SilkMarshal.PtrToString((nint)(&assimpTexture->AchFormatHint[0]));
-        if (format == "jpg")
-        {
-            var textureData = new Span<byte>(assimpTexture->PcData, (int)assimpTexture->MWidth);
+        opengl.ActiveTexture(TextureUnit.Texture0 + unit);
 
-            uint tempTexture = opengl.GenTexture();
-            opengl.ActiveTexture(TextureUnit.Texture0);
-            opengl.BindTexture(TextureTarget.Texture2D, tempTexture);
+        uint tempTexture = opengl.GenTexture();
+        opengl.BindTexture(TextureTarget.Texture2D, tempTexture);
 
-            var image = Image.Load<Rgba32>(textureData);
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
-            
-            int width = image.Width;
-            int height = image.Height;
-            byte[] rawdata = new byte[width * height * 4];
-            image.CopyPixelDataTo(rawdata);
-            
-            fixed (void* ptr = rawdata) opengl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)width, (uint)height, 0, GLEnum.Rgba, PixelType.UnsignedByte, ptr);
+        var textureData = new Span<byte>(assimpTexture->PcData, (int)assimpTexture->MWidth);
+        var image = Image.Load<Rgba32>(textureData);
+        image.Mutate(x => x.Flip(FlipMode.Vertical));
+        int width = image.Width;
+        int height = image.Height;
+        byte[] rawdata = new byte[width * height * 4];
+        image.CopyPixelDataTo(rawdata);
+        
+        fixed (void* ptr = rawdata) opengl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint)width, (uint)height, 0, GLEnum.Rgba, PixelType.UnsignedByte, ptr);
 
-            opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.Repeat);
-            opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapT, (int)GLEnum.Repeat);
-            opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest);
-            opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Nearest);
-            opengl.GenerateMipmap(GLEnum.Texture2D);
-            opengl.BindTexture(GLEnum.Texture2D, 0);
+        opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.Repeat);
+        opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapT, (int)GLEnum.Repeat);
+        opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest);
+        opengl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Nearest);
+        opengl.GenerateMipmap(GLEnum.Texture2D);
 
-            result = tempTexture;
-        }
-        return result;
+        return tempTexture;
     }
 
     private Silk.NET.Assimp.Texture* FindTexOfType(TextureType textureType, Assimp assimp, Silk.NET.Assimp.Scene* assimpScene, Silk.NET.Assimp.Material* assimpMaterial)

@@ -15,6 +15,7 @@ public class Mesh
     public List<uint> indices = [];
 
     public MeshBuffers buffers;
+
     public uint materialIndex;
 
     public unsafe void GenerateBuffers()
@@ -96,5 +97,5 @@ public class Material
 {
     public Vector4 color = Vector4.One;
     public uint? albedoTexture = null;
-    public uint? specularTexture = null;
+    public uint? roughnessTexture = null;
 }

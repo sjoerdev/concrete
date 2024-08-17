@@ -10,6 +10,8 @@ out vec4 color;
 uniform vec4 matColor;
 uniform bool matHasAlbedoTexture;
 uniform sampler2D matAlbedoTexture;
+uniform bool matHasRoughnessTexture;
+uniform sampler2D matRoughnessTexture;
 
 struct DirectionalLight
 {
