@@ -14,7 +14,9 @@ public class Mesh
     public List<Vertex> vertices = [];
     public List<uint> indices = [];
 
-    public MeshBuffers buffers;
+    public uint vao;
+    public uint vbo;
+    public uint ebo;
 
     public uint materialIndex;
 
@@ -24,14 +26,14 @@ public class Mesh
         var opengl = Engine.opengl;
 
         // create buffers
-        buffers.vao = opengl.GenVertexArray();
-        buffers.vbo = opengl.GenBuffer();
-        buffers.ebo = opengl.GenBuffer();
+        vao = opengl.GenVertexArray();
+        vbo = opengl.GenBuffer();
+        ebo = opengl.GenBuffer();
 
         // bind buffers
-        opengl.BindVertexArray(buffers.vao);
-        opengl.BindBuffer(GLEnum.ArrayBuffer, buffers.vbo);
-        opengl.BindBuffer(GLEnum.ElementArrayBuffer, buffers.ebo);
+        opengl.BindVertexArray(vao);
+        opengl.BindBuffer(GLEnum.ArrayBuffer, vbo);
+        opengl.BindBuffer(GLEnum.ElementArrayBuffer, ebo);
 
         // convert mesh data
         var verticesAsFloats = VerticesAsFloats();
@@ -56,7 +58,7 @@ public class Mesh
     public unsafe void Render()
     {
         var opengl = Engine.opengl;
-        opengl.BindVertexArray(buffers.vao);
+        opengl.BindVertexArray(vao);
         opengl.DrawElements(GLEnum.Triangles, (uint)indices.Count, DrawElementsType.UnsignedInt, null);
         opengl.BindVertexArray(0);
     }
@@ -84,13 +86,6 @@ public struct Vertex
     public Vector3 position;
     public Vector3 normal;
     public Vector2 uv;
-}
-
-public struct MeshBuffers
-{
-    public uint vao;
-    public uint vbo;
-    public uint ebo;
 }
 
 public class Material
