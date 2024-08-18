@@ -3,12 +3,6 @@ using Silk.NET.OpenGL;
 
 namespace Concrete;
 
-public class Model
-{
-    public List<Mesh> meshes = [];
-    public List<Material> materials = [];
-}
-
 public class Mesh
 {
     public List<Vertex> vertices = [];
@@ -18,9 +12,17 @@ public class Mesh
     public uint vbo;
     public uint ebo;
 
-    public uint materialIndex;
+    public Material material;
 
-    public unsafe void GenerateBuffers()
+    public unsafe void Render()
+    {
+        var opengl = Engine.opengl;
+        opengl.BindVertexArray(vao);
+        opengl.DrawElements(GLEnum.Triangles, (uint)indices.Count, DrawElementsType.UnsignedInt, null);
+        opengl.BindVertexArray(0);
+    }
+
+    public unsafe void SetupBuffers()
     {
         // get opengl context
         var opengl = Engine.opengl;
@@ -52,14 +54,6 @@ public class Mesh
         opengl.VertexAttribPointer(2, 2, GLEnum.Float, false, (uint)sizeof(Vertex), (void*)(6 * sizeof(float)));
         
         // unbind mesh
-        opengl.BindVertexArray(0);
-    }
-
-    public unsafe void Render()
-    {
-        var opengl = Engine.opengl;
-        opengl.BindVertexArray(vao);
-        opengl.DrawElements(GLEnum.Triangles, (uint)indices.Count, DrawElementsType.UnsignedInt, null);
         opengl.BindVertexArray(0);
     }
 

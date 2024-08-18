@@ -31,17 +31,15 @@ public class ModelRenderer : Component
         
         foreach (var mesh in model.meshes)
         {
-            var material = model.materials[(int)mesh.materialIndex];
+            shader.SetVector4("matColor", mesh.material.color);
 
-            shader.SetVector4("matColor", material.color);
-
-            var hasAlbedo = material.albedoTexture != null;
+            var hasAlbedo = mesh.material.albedoTexture != null;
             shader.SetBool("matHasAlbedoTexture", hasAlbedo);
-            if (hasAlbedo) shader.SetTexture("matAlbedoTexture", (uint)material.albedoTexture, 2);
+            if (hasAlbedo) shader.SetTexture("matAlbedoTexture", (uint)mesh.material.albedoTexture, 2);
 
-            var hasRoughness = material.roughnessTexture != null;
+            var hasRoughness = mesh.material.roughnessTexture != null;
             shader.SetBool("matHasRoughnessTexture", hasRoughness);
-            if (hasRoughness) shader.SetTexture("matRoughnessTexture", (uint)material.roughnessTexture, 3);
+            if (hasRoughness) shader.SetTexture("matRoughnessTexture", (uint)mesh.material.roughnessTexture, 3);
 
             mesh.Render();
         }

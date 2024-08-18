@@ -15,8 +15,30 @@ public unsafe static class ModelReader
     {
         var assimpScene = assimp.ImportFile(path, (uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.JoinIdenticalVertices);
         var tempModel = new Model();
+
+        // materials
+        var tempMaterials = new List<Material>();
+        for (int i = 0; i < assimpScene->MNumMaterials; i++)
+        {
+            var assimpMaterial = assimpScene->MMaterials[i];
+            var tempMaterial = new Material();
+
+            // albedo color
+            assimp.GetMaterialColor(assimpMaterial, Assimp.MatkeyColorDiffuse, 0, 0, ref tempMaterial.color);
+
+            // albedo texture
+            var assimpAlbedoTexture = FindTexOfType(TextureType.Diffuse, assimpScene, assimpMaterial);
+            if (assimpAlbedoTexture != null) tempMaterial.albedoTexture = GenAssimpTex(assimpAlbedoTexture, 2);
+
+            // roughness texture
+            var assimpRoughnessTexture = FindTexOfType(TextureType.DiffuseRoughness, assimpScene, assimpMaterial);
+            if (assimpRoughnessTexture != null) tempMaterial.roughnessTexture = GenAssimpTex(assimpRoughnessTexture, 3);
+
+            tempMaterials.Add(tempMaterial);
+        }
         
         // meshes
+        var tempMeshes = new List<Mesh>();
         for (uint i = 0; i < assimpScene->MNumMeshes; i++)
         {
             var assimpMesh = assimpScene->MMeshes[i];
@@ -51,31 +73,13 @@ public unsafe static class ModelReader
             }
 
             // material index
-            tempMesh.materialIndex = assimpMesh->MMaterialIndex;
+            int index = (int)assimpMesh->MMaterialIndex;
+            tempMesh.material = tempMaterials[index];
 
-            tempMesh.GenerateBuffers();
-            tempModel.meshes.Add(tempMesh);
+            tempMesh.SetupBuffers();
+            tempMeshes.Add(tempMesh);
         }
-
-        // materials
-        for (int i = 0; i < assimpScene->MNumMaterials; i++)
-        {
-            var assimpMaterial = assimpScene->MMaterials[i];
-            var tempMaterial = new Material();
-
-            // albedo color
-            assimp.GetMaterialColor(assimpMaterial, Assimp.MatkeyColorDiffuse, 0, 0, ref tempMaterial.color);
-
-            // albedo texture
-            var assimpAlbedoTexture = FindTexOfType(TextureType.Diffuse, assimpScene, assimpMaterial);
-            if (assimpAlbedoTexture != null) tempMaterial.albedoTexture = GenAssimpTex(assimpAlbedoTexture, 2);
-
-            // roughness texture
-            var assimpRoughnessTexture = FindTexOfType(TextureType.DiffuseRoughness, assimpScene, assimpMaterial);
-            if (assimpRoughnessTexture != null) tempMaterial.roughnessTexture = GenAssimpTex(assimpRoughnessTexture, 3);
-
-            tempModel.materials.Add(tempMaterial);
-        }
+        tempModel.meshes = tempMeshes;
 
         assimp.ReleaseImport(assimpScene);
 
