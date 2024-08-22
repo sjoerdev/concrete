@@ -16,7 +16,7 @@ public static unsafe class Editor
         set => selectedGameObjectIdentifier = value.id;
     }
 
-    public static SceneProjection sceneProjection = new();
+    public static SceneCamera sceneCamera = new();
     public static Framebuffer sceneWindowFramebuffer = new();
     public static Framebuffer gameWindowFramebuffer = new();
     
@@ -31,8 +31,8 @@ public static unsafe class Editor
     public static void Update(float deltaTime)
     {
         float sceneWindowAspect = (float)sceneWindowFramebuffer.size.X / (float)sceneWindowFramebuffer.size.Y;
-        sceneProjection.UpdateProjection(sceneWindowAspect);
-        if (sceneWindowFocussed) sceneProjection.ApplyMovement(deltaTime);
+        sceneCamera.UpdatePerspective(sceneWindowAspect);
+        if (sceneWindowFocussed) sceneCamera.ApplyMovement(deltaTime);
     }
 
     public static void Render(float deltaTime)
@@ -125,7 +125,7 @@ public static unsafe class Editor
         sceneWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         sceneWindowFramebuffer.Bind();
         sceneWindowFramebuffer.Clear(Color.DarkGray);
-        SceneManager.Render(deltaTime, sceneProjection.projection);
+        SceneManager.Render(deltaTime, sceneCamera.perspective);
         sceneWindowFramebuffer.Unbind();
 
         ImGui.Image((nint)sceneWindowFramebuffer.colorTexture, sceneWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
@@ -142,7 +142,7 @@ public static unsafe class Editor
             ImGuizmo.SetRect(position.X, position.Y, size.X, size.Y);
 
             Matrix4x4 worldModelMatrix = selectedGameObject.transform.GetWorldModelMatrix();
-            ImGuizmo.Manipulate(ref sceneProjection.projection.view, ref sceneProjection.projection.proj, guizmoOperation, ImGuizmoMode.World, ref worldModelMatrix);
+            ImGuizmo.Manipulate(ref sceneCamera.perspective.view, ref sceneCamera.perspective.proj, guizmoOperation, ImGuizmoMode.World, ref worldModelMatrix);
             if (ImGuizmo.IsUsing()) selectedGameObject.transform.SetWorldModelMatrix(worldModelMatrix);
 
             Engine.opengl.Viewport(Engine.window.Size);
@@ -156,7 +156,7 @@ public static unsafe class Editor
         gameWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         gameWindowFramebuffer.Bind();
         gameWindowFramebuffer.Clear(Color.DarkGray);
-        SceneManager.Render(deltaTime, SceneManager.loadedScene.FindAnyCamera().Project());
+        SceneManager.Render(deltaTime, SceneManager.loadedScene.FindAnyCamera().CalcPerspective());
         gameWindowFramebuffer.Unbind();
 
         ImGui.Image((nint)gameWindowFramebuffer.colorTexture, gameWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);

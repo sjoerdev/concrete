@@ -7,14 +7,13 @@ using SixLabors.ImageSharp.Processing;
 
 namespace Concrete;
 
-public unsafe static class ModelReader
+public unsafe static class Extractor
 {
     static Assimp assimp = Assimp.GetApi();
 
-    public static Model Load(string path)
+    public static List<Mesh> Load(string path)
     {
         var assimpScene = assimp.ImportFile(path, (uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.JoinIdenticalVertices);
-        var tempModel = new Model();
 
         // materials
         var tempMaterials = new List<Material>();
@@ -79,11 +78,9 @@ public unsafe static class ModelReader
             tempMesh.SetupBuffers();
             tempMeshes.Add(tempMesh);
         }
-        tempModel.meshes = tempMeshes;
 
         assimp.ReleaseImport(assimpScene);
-
-        return tempModel;
+        return tempMeshes;
     }
 
     private static uint GenAssimpTex(Silk.NET.Assimp.Texture* assimpTexture, int unit)

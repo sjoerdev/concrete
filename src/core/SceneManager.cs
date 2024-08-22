@@ -46,7 +46,7 @@ public static class SceneManager
         loadedScene?.Update(deltaTime);
     }
 
-    public static void Render(float deltaTime, Projection projection)
+    public static void Render(float deltaTime, Perspective projection)
     {
         loadedScene?.Render(deltaTime, projection);
     }

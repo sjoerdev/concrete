@@ -16,7 +16,7 @@ public class Component
         // can be overridden
     }
 
-    public virtual void Render(float deltaTime, Projection projection)
+    public virtual void Render(float deltaTime, Perspective projection)
     {
         // can be overridden
     }

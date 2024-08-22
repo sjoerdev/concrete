@@ -2,9 +2,9 @@ using System.Numerics;
 
 namespace Concrete;
 
-public class ModelRenderer : Component
+public class MeshRenderer : Component
 {
-    private Model model;
+    private List<Mesh> meshes = [];
     private Shader shader = Shader.Default;
 
     [Include]
@@ -14,22 +14,22 @@ public class ModelRenderer : Component
         set
         {
             currentModelPath = value;
-            model = ModelReader.Load(currentModelPath);
+            meshes = Extractor.Load(currentModelPath);
         }
     }
     private string currentModelPath;
 
-    public override void Render(float deltaTime, Projection projection)
+    public override void Render(float deltaTime, Perspective perspective)
     {
         shader.Use();
 
         shader.SetMatrix4("model", gameObject.transform.GetWorldModelMatrix());
-        shader.SetMatrix4("view", projection.view);
-        shader.SetMatrix4("proj", projection.proj);
+        shader.SetMatrix4("view", perspective.view);
+        shader.SetMatrix4("proj", perspective.proj);
         
         shader.SetLights(SceneManager.loadedScene.FindActiveLights());
         
-        foreach (var mesh in model.meshes)
+        foreach (var mesh in meshes)
         {
             shader.SetVector4("matColor", mesh.material.color);
 

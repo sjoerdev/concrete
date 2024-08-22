@@ -3,9 +3,9 @@ using Silk.NET.Input;
 
 namespace Concrete;
 
-public class SceneProjection
+public class SceneCamera
 {
-    public Projection projection = new Projection();
+    public Perspective perspective = new();
     public float fov = 90;
 
     public Vector3 position = new(-0.4f, 1.6f, 1.6f);
@@ -17,10 +17,10 @@ public class SceneProjection
 
     private Vector2 lastMousePos;
 
-    public void UpdateProjection(float aspect)
+    public void UpdatePerspective(float aspect)
     {
-        projection.proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI * fov / 180f, aspect, 0.1f, 1000f);
-        projection.view = Matrix4x4.CreateLookAt(position, position + forward, up);
+        perspective.proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI * fov / 180f, aspect, 0.1f, 1000f);
+        perspective.view = Matrix4x4.CreateLookAt(position, position + forward, up);
     }
 
     public void ApplyMovement(float deltaTime)
