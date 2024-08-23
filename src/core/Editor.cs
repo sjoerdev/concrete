@@ -74,14 +74,14 @@ public static unsafe class Editor
             // playerstate buttons
             ImGui.SetCursorPosX(half - buttonWidth * 1.5f - spacing);
 
-            var stopped = SceneManager.playerState == PlayerState.stopped;
-            var playing = SceneManager.playerState == PlayerState.playing;
-            var paused = SceneManager.playerState == PlayerState.paused;
+            var stopped = SceneManager.playState == PlayState.stopped;
+            var playing = SceneManager.playState == PlayState.playing;
+            var paused = SceneManager.playState == PlayState.paused;
 
             ImGui.BeginDisabled(playing || paused);
             if (ImGui.Button("play", size))
             {
-                SceneManager.Play();
+                SceneManager.StartPlaying();
                 ImGui.FocusWindow(ImGui.FindWindowByName("Game"), ImGuiFocusRequestFlags.None);
             }
             ImGui.EndDisabled();
@@ -89,13 +89,13 @@ public static unsafe class Editor
             ImGui.BeginDisabled(stopped);
             if (ImGui.Button(paused ? "continue" : "pause", size))
             {
-                if (paused) SceneManager.Continue();
-                else SceneManager.Pause();
+                if (paused) SceneManager.ContinuePlaying();
+                else SceneManager.PausePlaying();
             }
             ImGui.EndDisabled();
 
             ImGui.BeginDisabled(stopped);
-            if (ImGui.Button("stop", size)) SceneManager.Stop();
+            if (ImGui.Button("stop", size)) SceneManager.StopPlaying();
             ImGui.EndDisabled();
 
             ImGui.EndMainMenuBar();
@@ -125,7 +125,7 @@ public static unsafe class Editor
         sceneWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         sceneWindowFramebuffer.Bind();
         sceneWindowFramebuffer.Clear(Color.DarkGray);
-        SceneManager.Render(deltaTime, sceneCamera.perspective);
+        SceneManager.RenderScene(deltaTime, sceneCamera.perspective);
         sceneWindowFramebuffer.Unbind();
 
         ImGui.Image((nint)sceneWindowFramebuffer.colorTexture, sceneWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
@@ -156,7 +156,7 @@ public static unsafe class Editor
         gameWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         gameWindowFramebuffer.Bind();
         gameWindowFramebuffer.Clear(Color.DarkGray);
-        SceneManager.Render(deltaTime, SceneManager.loadedScene.FindAnyCamera().CalcPerspective());
+        SceneManager.RenderScene(deltaTime, SceneManager.loadedScene.FindAnyCamera().CalcPerspective());
         gameWindowFramebuffer.Unbind();
 
         ImGui.Image((nint)gameWindowFramebuffer.colorTexture, gameWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);

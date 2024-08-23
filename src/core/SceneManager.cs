@@ -5,54 +5,38 @@ namespace Concrete;
 public static class SceneManager
 {
     public static Scene loadedScene = null;
-    public static PlayerState playerState = PlayerState.stopped;
+    public static PlayState playState = PlayState.stopped;
 
-    public static void LoadScene(Scene scene)
-    {
-        loadedScene = scene;
-    }
-
-    public static void Play()
+    public static void StartPlaying()
     {
         Serialization.SaveScene("scene.bin", loadedScene);
-        Start();
-        playerState = PlayerState.playing;
+        StartScene();
+        playState = PlayState.playing;
     }
 
-    public static void Pause()
+    public static void PausePlaying()
     {
-        playerState = PlayerState.paused;
+        playState = PlayState.paused;
     }
 
-    public static void Continue()
+    public static void ContinuePlaying()
     {
-        playerState = PlayerState.playing;
+        playState = PlayState.playing;
     }
 
-    public static void Stop()
+    public static void StopPlaying()
     {
-        playerState = PlayerState.stopped;
+        playState = PlayState.stopped;
         loadedScene = Serialization.LoadScene("scene.bin");
     }
 
-    public static void Start()
-    {
-        loadedScene?.Start();
-    }
-
-    public static void TryUpdate(float deltaTime)
-    {
-        if (playerState != PlayerState.playing) return;
-        loadedScene?.Update(deltaTime);
-    }
-
-    public static void Render(float deltaTime, Perspective projection)
-    {
-        loadedScene?.Render(deltaTime, projection);
-    }
+    public static void LoadScene(Scene scene) => loadedScene = scene;
+    public static void StartScene() => loadedScene?.Start();
+    public static void UpdateScene(float deltaTime) => loadedScene?.Update(deltaTime);
+    public static void RenderScene(float deltaTime, Perspective perspective) => loadedScene?.Render(deltaTime, perspective);
 }
 
-public enum PlayerState
+public enum PlayState
 {
     stopped,
     playing,
