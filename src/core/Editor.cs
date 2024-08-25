@@ -28,6 +28,8 @@ public static unsafe class Editor
 
     private static List<(GameObject, GameObject)> reparentque = [];
 
+    private static Type[] ComponentsArray = GetDerivedFrom(typeof(Component));
+
     public static void Update(float deltaTime)
     {
         float sceneWindowAspect = (float)sceneWindowFramebuffer.size.X / (float)sceneWindowFramebuffer.size.Y;
@@ -181,12 +183,63 @@ public static unsafe class Editor
         if (selectedGameObject != null)
         {
             ImGui.PushID(selectedGameObject.id);
-            ImGui.Checkbox("", ref selectedGameObject.enabled);
-            ImGui.PopID();
+
+            // enabled and name
+            ImGui.Checkbox("##first", ref selectedGameObject.enabled);
             ImGui.SameLine();
-            ImGui.InputText("", ref selectedGameObject.name, 100);
+            ImGui.InputText("##second", ref selectedGameObject.name, 100);
+
             ImGui.Separator();
+
+            // draw each component
             foreach (var component in selectedGameObject.components) DrawComponent(component);
+
+            ImGui.Separator();
+            ImGui.Spacing();
+
+            /*
+                static int selected_fish = -1;
+                const char* names[] = { "Bream", "Haddock", "Mackerel", "Pollock", "Tilefish" };
+                static bool toggles[] = { true, false, false, false, false };
+
+                // Simple selection popup (if you want to show the current selection inside the Button itself,
+                // you may want to build a string using the "###" operator to preserve a constant ID with a variable label)
+                if (ImGui::Button("Select.."))
+                    ImGui::OpenPopup("my_select_popup");
+                ImGui::SameLine();
+                ImGui::TextUnformatted(selected_fish == -1 ? "<None>" : names[selected_fish]);
+                if (ImGui::BeginPopup("my_select_popup"))
+                {
+                    ImGui::SeparatorText("Aquarium");
+                    for (int i = 0; i < IM_ARRAYSIZE(names); i++)
+                        if (ImGui::Selectable(names[i]))
+                            selected_fish = i;
+                    ImGui::EndPopup();
+                }
+            */
+
+            // add component button
+            int width = 128;
+            int center = (int)ImGui.GetContentRegionAvail().X / 2;
+            ImGui.SetCursorPosX(center - width / 2);
+            if (ImGui.Button("add component", new Vector2(width, 0))) ImGui.OpenPopup("ChooseComponent");
+
+            int selectedComponentIndex = -1;
+            if (ImGui.BeginPopup("ChooseComponent"))
+            {
+                for (int i = 0; i < ComponentsArray.Length; i++)
+                {
+                    var type = ComponentsArray[i];
+                    if (ImGui.Selectable(type.Name))
+                    {
+                        selectedComponentIndex = i;
+                        var selectedComponent = ComponentsArray[selectedComponentIndex];
+                        selectedGameObject.AddComponentOfType(selectedComponent);
+                    }
+                }
+            }
+
+            ImGui.PopID();
         }
         ImGui.End();
 
@@ -275,7 +328,7 @@ public static unsafe class Editor
     public static void DrawComponent(Component component)
     {
         var type = component.GetType();
-        if (ImGui.CollapsingHeader(type.Name))
+        if (ImGui.CollapsingHeader(type.Name, ImGuiTreeNodeFlags.DefaultOpen))
         {
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
             foreach (var field in fields) DrawField(field, component);
@@ -378,5 +431,12 @@ public static unsafe class Editor
             bool value = (bool)curvalue;
             if (ImGui.Checkbox(name, ref value)) property.SetValue(component, value);
         }
+    }
+
+    private static Type[] GetDerivedFrom(Type from)
+    {
+        var all = Assembly.GetExecutingAssembly().GetTypes();
+        var derived = all.Where(type => type.IsClass && !type.IsAbstract && type != typeof(Transform) && type.IsSubclassOf(from));
+        return derived.ToArray();
     }
 }

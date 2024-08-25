@@ -43,6 +43,14 @@ public class GameObject
         return component;
     }
 
+    public Component AddComponentOfType(Type type)
+    {
+        var component = (Component)Activator.CreateInstance(type);
+        component.gameObject = this;
+        components.Add(component);
+        return component;
+    }
+
     public T GetComponent<T>() where T : Component
     {
         return components.OfType<T>().FirstOrDefault();

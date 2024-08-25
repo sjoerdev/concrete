@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace Concrete;
 
-public class Light : Component
+public abstract class Light : Component
 {
     [Include] [Show] public float brightness = 1;
     [Include] [Show] public Vector3 color = Vector3.One;
