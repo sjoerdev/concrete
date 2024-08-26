@@ -318,14 +318,18 @@ public static unsafe class Editor
         var flags = ImGuiTreeNodeFlags.None;
         if (type == typeof(Transform)) flags |= ImGuiTreeNodeFlags.DefaultOpen;
 
-        bool visible = true;
-        if (ImGui.CollapsingHeader(type.Name, ref visible, flags))
+        void DrawVariables()
         {
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
             foreach (var field in fields) DrawField(field, component);
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanRead && p.CanWrite);
             foreach (var property in properties) DrawProperty(property, component);
         }
+
+        bool visible = true;
+
+        if (component is not Transform) if (ImGui.CollapsingHeader(type.Name, ref visible, flags)) DrawVariables();
+        if (component is Transform) if (ImGui.CollapsingHeader(type.Name, flags)) DrawVariables();
 
         if (!visible)
         {
