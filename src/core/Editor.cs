@@ -28,6 +28,8 @@ public static unsafe class Editor
 
     private static List<(GameObject, GameObject)> reparentque = [];
 
+    private static List<Component> removeComponentQue = [];
+
     private static Type[] allTypes = Assembly.GetExecutingAssembly().GetTypes();
     private static Type[] componentTypes = allTypes.Where(type => type.IsClass && !type.IsAbstract && type != typeof(Transform) && type.IsSubclassOf(typeof(Component))).ToArray();
 
@@ -193,7 +195,9 @@ public static unsafe class Editor
             ImGui.Separator();
 
             // draw each component
+            removeComponentQue.Clear();
             foreach (var component in selectedGameObject.components) DrawComponent(component);
+            foreach (var component in removeComponentQue) selectedGameObject.RemoveComponent(component);
 
             ImGui.Separator();
             ImGui.Spacing();
@@ -314,12 +318,19 @@ public static unsafe class Editor
         var flags = ImGuiTreeNodeFlags.None;
         if (type == typeof(Transform)) flags |= ImGuiTreeNodeFlags.DefaultOpen;
 
-        if (ImGui.CollapsingHeader(type.Name, flags))
+        bool visible = true;
+        if (ImGui.CollapsingHeader(type.Name, ref visible, flags))
         {
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
             foreach (var field in fields) DrawField(field, component);
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanRead && p.CanWrite);
             foreach (var property in properties) DrawProperty(property, component);
+        }
+
+        if (!visible)
+        {
+            visible = true;
+            removeComponentQue.Add(component);
         }
     }
 

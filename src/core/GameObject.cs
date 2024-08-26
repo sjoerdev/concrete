@@ -43,6 +43,12 @@ public class GameObject
         return component;
     }
 
+    public void RemoveComponent(Component component)
+    {
+        components.Remove(component);
+        component = null;
+    }
+
     public Component AddComponentOfType(Type type)
     {
         var component = (Component)Activator.CreateInstance(type);
