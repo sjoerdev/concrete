@@ -4,7 +4,7 @@ namespace Concrete;
 
 public class MeshRenderer : Component
 {
-    private List<Mesh> meshes = [];
+    private Mesh[] meshes = [];
     private Shader shader = Shader.Default;
 
     [Include]
@@ -14,7 +14,7 @@ public class MeshRenderer : Component
         set
         {
             currentModelPath = value;
-            meshes = Extractor.Load(currentModelPath);
+            meshes = Extractor.GetMeshes(currentModelPath);
         }
     }
     private string currentModelPath;
