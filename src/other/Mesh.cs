@@ -52,6 +52,10 @@ public class Mesh
         opengl.VertexAttribPointer(1, 3, GLEnum.Float, false, (uint)sizeof(Vertex), (void*)(3 * sizeof(float)));
         opengl.EnableVertexAttribArray(2);
         opengl.VertexAttribPointer(2, 2, GLEnum.Float, false, (uint)sizeof(Vertex), (void*)(6 * sizeof(float)));
+        opengl.EnableVertexAttribArray(3);
+        opengl.VertexAttribPointer(3, 4, GLEnum.Float, false, (uint)sizeof(Vertex), (void*)(8 * sizeof(float)));
+        opengl.EnableVertexAttribArray(4);
+        opengl.VertexAttribPointer(4, 4, GLEnum.Float, false, (uint)sizeof(Vertex), (void*)(12 * sizeof(float)));
         
         // unbind mesh
         opengl.BindVertexArray(0);
@@ -70,6 +74,14 @@ public class Mesh
             list.Add(vertex.normal.Z);
             list.Add(vertex.uv.X);
             list.Add(vertex.uv.Y);
+            list.Add(vertex.joints.X);
+            list.Add(vertex.joints.Y);
+            list.Add(vertex.joints.Z);
+            list.Add(vertex.joints.W);
+            list.Add(vertex.weights.X);
+            list.Add(vertex.weights.Y);
+            list.Add(vertex.weights.Z);
+            list.Add(vertex.weights.W);
         }
         return list.ToArray();
     }
@@ -80,6 +92,8 @@ public struct Vertex
     public Vector3 position;
     public Vector3 normal;
     public Vector2 uv;
+    public Vector4 joints;
+    public Vector4 weights;
 }
 
 public class Material

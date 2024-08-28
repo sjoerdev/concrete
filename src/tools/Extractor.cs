@@ -32,8 +32,8 @@ public class Extractor
         var positions = gprim.GetVertexAccessor("POSITION").AsVector3Array();
         var normals = gprim.GetVertexAccessor("NORMAL").AsVector3Array();
         var uvs = gprim.GetVertexAccessor("TEXCOORD_0")?.AsVector2Array();
-        //var joints = gprim.GetVertexAccessor("JOINTS_0")?.AsVector4Array();
-        //var weights = gprim.GetVertexAccessor("WEIGHTS_0")?.AsVector4Array();
+        var joints = gprim.GetVertexAccessor("JOINTS_0")?.AsVector4Array();
+        var weights = gprim.GetVertexAccessor("WEIGHTS_0")?.AsVector4Array();
 
         for (int i = 0; i < positions.Count; i++)
         {
@@ -42,8 +42,8 @@ public class Extractor
                 position = positions[i],
                 normal = normals[i],
                 uv = uvs?[i] ?? Vector2.Zero,
-                //joints = joints?[i] ?? -Vector4.One,
-                //weights = weights?[i] ?? -Vector4.One,
+                joints = joints?[i] ?? -Vector4.One,
+                weights = weights?[i] ?? -Vector4.One,
             };
             cmesh.vertices.Add(vertex);
         }
