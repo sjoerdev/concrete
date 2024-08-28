@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="SharpGLTF.Core" Version="1.0.1" />
+    <PackageReference Include="SharpGLTF.Runtime" Version="1.0.1" />
     <PackageReference Include="Hexa.NET.ImGui" Version="1.0.4" />
     <PackageReference Include="Hexa.NET.ImGuizmo" Version="1.0.4" />
     <PackageReference Include="Hexa.NET.ImPlot" Version="1.0.4" />
