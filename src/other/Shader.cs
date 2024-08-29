@@ -8,7 +8,17 @@ public class Shader
     private GL opengl;
     private uint handle;
 
-    public static Shader Default => new("res/shaders/default-vert.glsl", "res/shaders/default-frag.glsl");
+    public static Shader CreateDefault()
+    {
+        var shader = new Shader("res/shaders/default.vert", "res/shaders/default.frag");
+        return shader;
+    }
+
+    public static Shader CreateSkinned()
+    {
+        var shader = new Shader("res/shaders/skinned.vert", "res/shaders/default.frag");
+        return shader;
+    }
 
     public Shader(string vertPath, string fragPath)
     {

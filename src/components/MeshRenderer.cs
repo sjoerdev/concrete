@@ -8,9 +8,8 @@ namespace Concrete;
 public class MeshRenderer : Component
 {
     private Mesh[] meshes = [];
-    private Shader shader = Shader.Default;
-
-    private bool animated = false;
+    private Shader shader = null;
+    private bool skinned = false;
     private SceneInstance instance;
 
     [Include]
@@ -20,9 +19,18 @@ public class MeshRenderer : Component
         set
         {
             currentModelPath = value;
+
+            // extract all meshes
             meshes = Extractor.GetMeshes(currentModelPath);
+
+            // create instance for animation
             instance = SceneTemplate.Create(ModelRoot.Load(currentModelPath).DefaultScene).CreateInstance();
-            if (instance.GetDrawableInstance(0).Transform is SkinnedTransform) animated = true;
+
+            // check if mesh is skinned
+            if (instance.GetDrawableInstance(0).Transform is SkinnedTransform) skinned = true;
+
+            // create shader
+            shader = skinned ? Shader.CreateSkinned() : Shader.CreateDefault();
         }
     }
     private string currentModelPath;
@@ -30,14 +38,12 @@ public class MeshRenderer : Component
     public override void Render(float deltaTime, Perspective perspective)
     {
         shader.Use();
-
         shader.SetMatrix4("model", gameObject.transform.GetWorldModelMatrix());
         shader.SetMatrix4("view", perspective.view);
         shader.SetMatrix4("proj", perspective.proj);
-        
         shader.SetLights(SceneManager.loadedScene.FindActiveLights());
 
-        if (animated)
+        if (skinned)
         {
             var skinnedTransform = (SkinnedTransform)instance.GetDrawableInstance(0).Transform;
             Matrix4x4[] skinnedMatrices = skinnedTransform.SkinMatrices.ToArray();
