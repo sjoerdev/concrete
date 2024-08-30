@@ -5,6 +5,8 @@ namespace Concrete;
 
 public class Mesh
 {
+    public Matrix4x4 offset;
+    
     public List<Vertex> vertices = [];
     public List<uint> indices = [];
 

@@ -12,11 +12,17 @@ public class Extractor
         List<Mesh> cmeshes = [];
         var model = ModelRoot.Load(filePath);
 
-        foreach (var mesh in model.LogicalMeshes)
+        foreach (var node in model.LogicalNodes)
         {
-            foreach (var prim in mesh.Primitives)
+            var mesh = node.Mesh;
+            if (mesh != null)
             {
-                cmeshes.Add(PrimToMesh(prim));
+                foreach (var prim in mesh.Primitives)
+                {
+                    var cmesh = PrimToMesh(prim);
+                    cmesh.offset = node.WorldMatrix;
+                    cmeshes.Add(cmesh);
+                }
             }
         }
         

@@ -38,11 +38,15 @@ public class MeshRenderer : Component
     public override void Render(float deltaTime, Perspective perspective)
     {
         shader.Use();
-        shader.SetMatrix4("model", gameObject.transform.GetWorldModelMatrix());
+
+        // set camera
         shader.SetMatrix4("view", perspective.view);
         shader.SetMatrix4("proj", perspective.proj);
+
+        // set lights
         shader.SetLights(SceneManager.loadedScene.FindActiveLights());
 
+        // set skin
         if (skinned)
         {
             var skinnedTransform = (SkinnedTransform)instance.GetDrawableInstance(0).Transform;
@@ -50,9 +54,13 @@ public class MeshRenderer : Component
             for (int i = 0; i < 100; i++) shader.SetMatrix4($"jointMatrices[{i}]", Matrix4x4.Identity);
             for (int i = 0; i < skinnedMatrices.Length; i++) shader.SetMatrix4($"jointMatrices[{i}]", skinnedMatrices[i]);
         }
-        
+
         foreach (var mesh in meshes)
         {
+            // set worldpos
+            shader.SetMatrix4("model", mesh.offset * gameObject.transform.GetWorldModelMatrix());
+
+            // set material
             shader.SetVector4("matColor", mesh.material.color);
             var hasAlbedo = mesh.material.albedoTexture != null;
             shader.SetBool("matHasAlbedoTexture", hasAlbedo);
@@ -60,6 +68,8 @@ public class MeshRenderer : Component
             var hasRoughness = mesh.material.roughnessTexture != null;
             shader.SetBool("matHasRoughnessTexture", hasRoughness);
             if (hasRoughness) shader.SetTexture("matRoughnessTexture", (uint)mesh.material.roughnessTexture, 3);
+
+            // render mesh
             mesh.Render();
         }
     }
