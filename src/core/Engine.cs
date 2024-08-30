@@ -39,33 +39,26 @@ public static class Engine
 
         SceneManager.LoadScene(new Scene());
 
-        var cameraObject = GameObject.Create();
-        cameraObject.AddComponent<Camera>();
-        cameraObject.transform.localPosition = new Vector3(0, 1, -2);
-        cameraObject.name = "Camera";
+        var camera = GameObject.Create();
+        camera.AddComponent<Camera>();
+        camera.transform.localPosition = new Vector3(0, 1, -2);
+        camera.name = "Camera";
 
-        var firstModel = GameObject.Create();
-        firstModel.AddComponent<MeshRenderer>().modelPath = "res/models/cesium.glb";
-        firstModel.name = "Cesium Model";
+        var robot = GameObject.Create();
+        robot.AddComponent<MeshRenderer>().modelPath = "res/models/robot.glb";
+        robot.transform.localPosition = new Vector3(-1, 0, 0);
+        robot.name = "Robot Model";
+        
+        var technic = GameObject.Create();
+        technic.AddComponent<MeshRenderer>().modelPath = "res/models/technic.glb";
+        technic.transform.localPosition = new Vector3(1, 0, 0);
+        technic.transform.localScale = Vector3.One * 0.0005f;
+        technic.name = "Technic Model";
 
-        var secondModel = GameObject.Create();
-        secondModel.AddComponent<MeshRenderer>().modelPath = "res/models/helmet.glb";
-        secondModel.transform.localPosition = new Vector3(1, 1, 0);
-        secondModel.transform.localEulerAngles = new Vector3(0, 180, 0);
-        secondModel.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-        secondModel.transform.parent = firstModel.transform;
-        secondModel.name = "Helmet Model";
-
-        var thirdModel = GameObject.Create();
-        thirdModel.AddComponent<MeshRenderer>().modelPath = "res/models/robot.glb";
-        thirdModel.transform.localPosition = new Vector3(-1, 0, 0);
-        thirdModel.transform.parent = secondModel.transform;
-        thirdModel.name = "Robot Model";
-
-        var lightObject = GameObject.Create();
-        lightObject.AddComponent<DirectionalLight>();
-        lightObject.transform.localEulerAngles = new Vector3(20, 135, 0);
-        lightObject.name = "Directional Light";
+        var light = GameObject.Create();
+        light.AddComponent<DirectionalLight>();
+        light.transform.localEulerAngles = new Vector3(20, 135, 0);
+        light.name = "Directional Light";
     }
 
     static void UpdateWindow(double deltaTime)

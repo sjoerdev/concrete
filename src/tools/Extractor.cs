@@ -9,18 +9,21 @@ public class Extractor
 {
     public static Mesh[] GetMeshes(string filePath)
     {
-        var model = ModelRoot.Load(filePath);
+        List<Mesh> cmeshes = [];
 
-        var gmesh = model.LogicalMeshes[0];
-        Mesh[] cmeshes = new Mesh[gmesh.Primitives.Count];
-        for (int i = 0; i < gmesh.Primitives.Count; i++)
+        var model = ModelRoot.Load(filePath);
+        for (int m = 0; m < model.LogicalMeshes.Count; m++)
         {
-            var gprim = gmesh.Primitives[i];
-            var cmesh = PrimToMesh(gprim);
-            cmeshes[i] = cmesh;
+            var gmesh = model.LogicalMeshes[m];
+            for (int p = 0; p < gmesh.Primitives.Count; p++)
+            {
+                var gprim = gmesh.Primitives[p];
+                var cmesh = PrimToMesh(gprim);
+                cmeshes.Add(cmesh);
+            }
         }
 
-        return cmeshes;
+        return cmeshes.ToArray();
     }
 
     private static Mesh PrimToMesh(MeshPrimitive gprim)
