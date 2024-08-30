@@ -10,19 +10,16 @@ public class Extractor
     public static Mesh[] GetMeshes(string filePath)
     {
         List<Mesh> cmeshes = [];
-
         var model = ModelRoot.Load(filePath);
-        for (int m = 0; m < model.LogicalMeshes.Count; m++)
+
+        foreach (var mesh in model.LogicalMeshes)
         {
-            var gmesh = model.LogicalMeshes[m];
-            for (int p = 0; p < gmesh.Primitives.Count; p++)
+            foreach (var prim in mesh.Primitives)
             {
-                var gprim = gmesh.Primitives[p];
-                var cmesh = PrimToMesh(gprim);
-                cmeshes.Add(cmesh);
+                cmeshes.Add(PrimToMesh(prim));
             }
         }
-
+        
         return cmeshes.ToArray();
     }
 
