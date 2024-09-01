@@ -9,7 +9,7 @@ public static class SceneManager
 
     public static void StartPlaying()
     {
-        Serialization.SaveScene("scene.bin", loadedScene);
+        Serialization.SaveScene("res/scenes/test.scene", loadedScene);
         StartScene();
         playState = PlayState.playing;
     }
@@ -27,10 +27,11 @@ public static class SceneManager
     public static void StopPlaying()
     {
         playState = PlayState.stopped;
-        loadedScene = Serialization.LoadScene("scene.bin");
+        loadedScene = Serialization.LoadScene("res/scenes/test.scene");
     }
 
     public static void LoadScene(Scene scene) => loadedScene = scene;
+    public static void LoadScene(string path) => loadedScene = Serialization.LoadScene(path);
     public static void StartScene() => loadedScene?.Start();
     public static void UpdateScene(float deltaTime) => loadedScene?.Update(deltaTime);
     public static void RenderScene(float deltaTime, Perspective perspective) => loadedScene?.Render(deltaTime, perspective);

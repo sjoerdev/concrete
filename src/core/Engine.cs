@@ -30,35 +30,10 @@ public static class Engine
 
     static void StartWindow()
     {
-        // instance important objects
         opengl = GL.GetApi(window);
         input = window.CreateInput();
         igcontroller = new ImGuiController(opengl, window, input);
-
-        // load debug scene --------
-
-        SceneManager.LoadScene(new Scene());
-
-        var camera = GameObject.Create();
-        camera.AddComponent<Camera>();
-        camera.transform.localPosition = new Vector3(0, 1, -2);
-        camera.name = "Camera";
-
-        var robot = GameObject.Create();
-        robot.AddComponent<MeshRenderer>().modelPath = "res/models/robot.glb";
-        robot.transform.localPosition = new Vector3(-1, 0, 0);
-        robot.name = "Robot Model";
-        
-        var technic = GameObject.Create();
-        technic.AddComponent<MeshRenderer>().modelPath = "res/models/technic.glb";
-        technic.transform.localPosition = new Vector3(1, 0, 0);
-        technic.transform.localScale = Vector3.One * 0.0005f;
-        technic.name = "Technic Model";
-
-        var light = GameObject.Create();
-        light.AddComponent<DirectionalLight>();
-        light.transform.localEulerAngles = new Vector3(20, 135, 0);
-        light.name = "Directional Light";
+        SceneManager.LoadScene("res/scenes/test.scene");
     }
 
     static void UpdateWindow(double deltaTime)
