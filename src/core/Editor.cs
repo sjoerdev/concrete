@@ -1,6 +1,9 @@
 using System.Numerics;
 using System.Drawing;
 using System.Reflection;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
 using Hexa.NET.ImGui;
 using Hexa.NET.ImGuizmo;
 using Hexa.NET.ImPlot;
@@ -55,6 +58,21 @@ public static unsafe class Editor
         // begin main menu bar
         if (ImGui.BeginMainMenuBar())
         {
+            // scene menu
+            if (ImGui.BeginMenu("Scene"))
+            {
+                if (ImGui.MenuItem("Save current scene")) SceneManager.SaveScene();
+                if (ImGui.MenuItem("Load current scene")) SceneManager.LoadScene();
+                ImGui.EndMenu();
+            }
+
+            // help menu
+            if (ImGui.BeginMenu("Help"))
+            {
+                if (ImGui.MenuItem("Open engine repository")) OpenLink("https://github.com/sjoerdev/concrete");
+                ImGui.EndMenu();
+            }
+            
             float buttonWidth = 64;
             float spacing = ImGui.GetStyle().ItemSpacing.X;
             float full = Engine.window.Size.X;
@@ -432,5 +450,27 @@ public static unsafe class Editor
             bool value = (bool)curvalue;
             if (ImGui.Checkbox(name, ref value)) property.SetValue(component, value);
         }
+    }
+
+    public static void OpenLink(string url)
+    {
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        var isMac = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+        
+        if (isWindows)
+        {
+            var info = new ProcessStartInfo(url)
+            {
+                FileName = url,
+                UseShellExecute = true,
+            };
+
+            Process.Start(info);
+        }
+
+        if (isLinux) Process.Start("xdg-open", url);
+
+        if (isMac) Process.Start("open", url);
     }
 }
