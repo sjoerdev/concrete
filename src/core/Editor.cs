@@ -186,6 +186,19 @@ public static unsafe class Editor
         ImGui.End();
 
         ImGui.Begin("Hierarchy");
+
+        var hspace = ImGui.GetContentRegionAvail().X;
+        var hwidth = hspace / 2 - ImGui.GetStyle().ItemSpacing.X / 2;
+        var hsize = new Vector2(hwidth, 0);
+
+        if (ImGui.Button("Create", hsize)) GameObject.Create();
+        ImGui.SameLine();
+        ImGui.BeginDisabled(selectedGameObject == null);
+        if (ImGui.Button("Delete", hsize)) SceneManager.loadedScene.RemoveGameObject(selectedGameObject);
+        ImGui.EndDisabled();
+
+        ImGui.Separator();
+
         foreach (var gameObject in SceneManager.loadedScene.gameObjects) if (gameObject.transform.parent == null) DrawHierarchyMember(gameObject);
         ImGui.InvisibleButton("", ImGui.GetContentRegionAvail());
         if (ImGui.BeginDragDropTarget())

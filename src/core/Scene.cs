@@ -52,6 +52,12 @@ public class Scene
         return result;
     }
 
+    public void RemoveGameObject(GameObject gameObject)
+    {
+        gameObjects.Remove(gameObject);
+        gameObject = null;
+    }
+
     public void Start()
     {
         foreach (var gameObject in gameObjects) gameObject.Start();
