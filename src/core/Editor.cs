@@ -28,6 +28,7 @@ public static unsafe class Editor
     private static bool gameWindowFocussed = false;
 
     private static ImGuizmoOperation guizmoOperation = ImGuizmoOperation.Translate;
+    private static ImGuizmoMode guizmoMode = ImGuizmoMode.Local;
 
     private static List<(GameObject, GameObject)> reparentque = [];
 
@@ -144,13 +145,18 @@ public static unsafe class Editor
         
         ImGui.Begin("Scene", ImGuiWindowFlags.NoScrollbar);
         sceneWindowFocussed = ImGui.IsWindowFocused();
-
+        
+        // render scene to framebuffer
         sceneWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         sceneWindowFramebuffer.Bind();
         sceneWindowFramebuffer.Clear(Color.DarkGray);
         SceneManager.RenderScene(deltaTime, sceneCamera.perspective);
         sceneWindowFramebuffer.Unbind();
 
+        // record corner position
+        var scenecornerpos = ImGui.GetCursorPos();
+
+        // show framebuffer as image
         ImGui.Image((nint)sceneWindowFramebuffer.colorTexture, sceneWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
 
         // imguizmo
@@ -165,24 +171,101 @@ public static unsafe class Editor
             ImGuizmo.SetRect(position.X, position.Y, size.X, size.Y);
 
             Matrix4x4 worldModelMatrix = selectedGameObject.transform.GetWorldModelMatrix();
-            ImGuizmo.Manipulate(ref sceneCamera.perspective.view, ref sceneCamera.perspective.proj, guizmoOperation, ImGuizmoMode.World, ref worldModelMatrix);
+            ImGuizmo.Manipulate(ref sceneCamera.perspective.view, ref sceneCamera.perspective.proj, guizmoOperation, guizmoMode, ref worldModelMatrix);
             if (ImGuizmo.IsUsing()) selectedGameObject.transform.SetWorldModelMatrix(worldModelMatrix);
 
             Engine.opengl.Viewport(Engine.window.Size);
         }
-            
+
+        {
+            var buttonsize = new Vector2(50, 0);
+            var padding = ImGui.GetStyle().WindowPadding;
+            var moving = guizmoOperation == ImGuizmoOperation.Translate;
+            var rotating = guizmoOperation == ImGuizmoOperation.Rotate;
+            var scaling = guizmoOperation == ImGuizmoOperation.Scale;
+            var local = guizmoMode == ImGuizmoMode.Local;
+            var world = guizmoMode == ImGuizmoMode.World;
+
+            ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.5f, 0.5f, 0.5f, 1));
+            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.7f, 0.7f, 0.7f, 1));
+            ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.9f, 0.9f, 0.9f, 1));
+            ImGui.SetCursorPos(scenecornerpos + padding);
+            ImGui.BeginDisabled(moving);
+            if (ImGui.Button("move", buttonsize)) guizmoOperation = ImGuizmoOperation.Translate;
+            ImGui.EndDisabled();
+            ImGui.SameLine();
+            ImGui.BeginDisabled(rotating);
+            if (ImGui.Button("rotate", buttonsize)) guizmoOperation = ImGuizmoOperation.Rotate;
+            ImGui.EndDisabled();
+            ImGui.SameLine();
+            ImGui.BeginDisabled(scaling);
+            if (ImGui.Button("scale", buttonsize)) guizmoOperation = ImGuizmoOperation.Scale;
+            ImGui.EndDisabled();
+            ImGui.SameLine();
+            ImGui.SeparatorEx(ImGuiSeparatorFlags.Vertical, 1);
+            ImGui.SameLine();
+            ImGui.BeginDisabled(local);
+            if (ImGui.Button("local", buttonsize)) guizmoMode = ImGuizmoMode.Local;
+            ImGui.EndDisabled();
+            ImGui.SameLine();
+            ImGui.BeginDisabled(world);
+            if (ImGui.Button("world", buttonsize)) guizmoMode = ImGuizmoMode.World;
+            ImGui.EndDisabled();
+            ImGui.PopStyleColor(3);
+        }
+
         ImGui.End();
 
         ImGui.Begin("Game", ImGuiWindowFlags.NoScrollbar);
         gameWindowFocussed = ImGui.IsWindowFocused();
 
+        // render to framebuffer
         gameWindowFramebuffer.Resize(ImGui.GetContentRegionAvail());
         gameWindowFramebuffer.Bind();
         gameWindowFramebuffer.Clear(Color.DarkGray);
         SceneManager.RenderScene(deltaTime, SceneManager.loadedScene.FindAnyCamera().CalcPerspective());
         gameWindowFramebuffer.Unbind();
 
+        // record corner position
+        var gamecornerpos = ImGui.GetCursorPos();
+
+        // show framebuffer as image
         ImGui.Image((nint)gameWindowFramebuffer.colorTexture, gameWindowFramebuffer.size, Vector2.UnitY, Vector2.UnitX);
+
+        {
+            var buttonsize = new Vector2(64, 0);
+            var padding = ImGui.GetStyle().WindowPadding;
+            var stopped = SceneManager.playState == PlayState.stopped;
+            var playing = SceneManager.playState == PlayState.playing;
+            var paused = SceneManager.playState == PlayState.paused;
+
+            ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.5f, 0.5f, 0.5f, 1));
+            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.7f, 0.7f, 0.7f, 1));
+            ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.9f, 0.9f, 0.9f, 1));
+            ImGui.SetCursorPos(gamecornerpos + padding);
+            ImGui.BeginDisabled(playing || paused);
+            if (ImGui.Button("play", buttonsize))
+            {
+                SceneManager.StartPlaying();
+                ImGui.FocusWindow(ImGui.FindWindowByName("Game"), ImGuiFocusRequestFlags.None);
+            }
+            ImGui.EndDisabled();
+            ImGui.SameLine();
+            ImGui.BeginDisabled(stopped);
+            if (ImGui.Button(paused ? "continue" : "pause", buttonsize))
+            {
+                if (paused) SceneManager.ContinuePlaying();
+                else SceneManager.PausePlaying();
+            }
+            ImGui.EndDisabled();
+            ImGui.SameLine();
+            ImGui.BeginDisabled(stopped);
+            if (ImGui.Button("stop", buttonsize)) SceneManager.StopPlaying();
+            ImGui.EndDisabled();
+            ImGui.End();
+            ImGui.PopStyleColor(3);
+        }
+        
         ImGui.End();
 
         ImGui.Begin("Hierarchy");
