@@ -74,54 +74,6 @@ public static unsafe class Editor
                 ImGui.EndMenu();
             }
             
-            float buttonWidth = 64;
-            float spacing = ImGui.GetStyle().ItemSpacing.X;
-            float full = Engine.window.Size.X;
-            float half = full / 2;
-            var size = new Vector2(buttonWidth, 0);
-
-            // guizmo operation buttons
-            ImGui.SetCursorPosX(full - (3 * buttonWidth) - (3 * spacing));
-
-            ImGui.BeginDisabled(guizmoOperation == ImGuizmoOperation.Translate);
-            if (ImGui.Button("move", size)) guizmoOperation = ImGuizmoOperation.Translate;
-            ImGui.EndDisabled();
-
-            ImGui.BeginDisabled(guizmoOperation == ImGuizmoOperation.Rotate);
-            if (ImGui.Button("rotate", size)) guizmoOperation = ImGuizmoOperation.Rotate;
-            ImGui.EndDisabled();
-
-            ImGui.BeginDisabled(guizmoOperation == ImGuizmoOperation.Scale);
-            if (ImGui.Button("scale", size)) guizmoOperation = ImGuizmoOperation.Scale;
-            ImGui.EndDisabled();
-
-            // playerstate buttons
-            ImGui.SetCursorPosX(half - buttonWidth * 1.5f - spacing);
-
-            var stopped = SceneManager.playState == PlayState.stopped;
-            var playing = SceneManager.playState == PlayState.playing;
-            var paused = SceneManager.playState == PlayState.paused;
-
-            ImGui.BeginDisabled(playing || paused);
-            if (ImGui.Button("play", size))
-            {
-                SceneManager.StartPlaying();
-                ImGui.FocusWindow(ImGui.FindWindowByName("Game"), ImGuiFocusRequestFlags.None);
-            }
-            ImGui.EndDisabled();
-
-            ImGui.BeginDisabled(stopped);
-            if (ImGui.Button(paused ? "continue" : "pause", size))
-            {
-                if (paused) SceneManager.ContinuePlaying();
-                else SceneManager.PausePlaying();
-            }
-            ImGui.EndDisabled();
-
-            ImGui.BeginDisabled(stopped);
-            if (ImGui.Button("stop", size)) SceneManager.StopPlaying();
-            ImGui.EndDisabled();
-
             ImGui.EndMainMenuBar();
         }
 
