@@ -25,7 +25,7 @@ public static class Player
     static void StartWindow()
     {
         Assembly.LoadFile(Path.GetFullPath("Scripts.dll"));
-        ProjectManager.LoadProjectFile("./_Resources/GameData/project.json");
+        ProjectManager.LoadProjectDir("./_Resources/GameData/");
         SceneManager.StartPlaying();
     }
 

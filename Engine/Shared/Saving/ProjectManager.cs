@@ -23,7 +23,7 @@ public static class ProjectManager
             if (File.Exists(lastOpenedProjectPath))
             {
                 Debug.Log("Last project memory file contained a valid project.");
-                LoadProjectFile(lastOpenedProjectPath);
+                LoadProjectDir(Directory.GetParent(lastOpenedProjectPath).ToString());
             }
             else
             {
@@ -51,20 +51,40 @@ public static class ProjectManager
         // create and load and remember temp project
         string projectfilepath = Path.Combine(tempProjectPath, "project.json");
         ProjectSerializer.NewProjectFile(projectfilepath);
-        LoadProjectFile(projectfilepath, true);
+        LoadProjectDir(tempProjectPath, true);
         Directory.CreateDirectory(Path.Combine(tempProjectPath, "Scenes"));
         Directory.CreateDirectory(Path.Combine(tempProjectPath, "Scripts"));
     }
 
     // ----
 
-    public static void SaveProjectFile(string path)
+    public static void NewProjectDir(string dir)
     {
-        ProjectSerializer.SaveProjectFile(path, loadedProjectData);
+        var filepath = Path.Combine(dir, "project.json");
+        ProjectSerializer.NewProjectFile(filepath);
+        LoadProjectDir(dir);
+        Directory.CreateDirectory("Scenes");
+        Directory.CreateDirectory("Scripts");
     }
 
-    public static void LoadProjectFile(string path, bool isTemp = false)
+    public static void SaveProjectDir(string dir)
     {
+        if (dir != projectRoot)
+        {
+            CopyDirectory(projectRoot, dir);
+            LoadProjectDir(dir);
+        }
+        else
+        {
+            Debug.Log("Project is already up to date.");
+        }
+    }
+
+    public static void LoadProjectDir(string dir, bool isTemp = false)
+    {
+        var path = Path.Combine(dir, "project.json");
+        if (!File.Exists(path)) File.Create(path);
+
         // load project
         loadedProjectFilePath = path;
         loadedProjectData = ProjectSerializer.LoadProjectFile(path);
@@ -96,74 +116,8 @@ public static class ProjectManager
             Debug.Log("Remembered the newly loaded project.");
         }
 
-        AfterProjectLoad(Path.GetDirectoryName(path));
-    }
-
-    // ----
-
-    public static void NewProjectDir(string dir)
-    {
-        var filepath = Path.Combine(dir, "project.json");
-        ProjectSerializer.NewProjectFile(filepath);
-        LoadProjectFile(filepath);
-        Directory.CreateDirectory("Scenes");
-        Directory.CreateDirectory("Scripts");
-    }
-
-    public static void SaveProjectDir(string dir)
-    {
-        if (dir != projectRoot)
-        {
-            CopyDirectory(projectRoot, dir);
-            LoadProjectDir(dir);
-        }
-        else
-        {
-            Debug.Log("Project is already up to date.");
-        }
-    }
-
-    public static void LoadProjectDir(string dir, bool isTemp = false)
-    {
-        var filepath = Path.Combine(dir, "project.json");
-        if (!File.Exists(filepath)) File.Create(filepath);
-
-        // load project
-        loadedProjectFilePath = filepath;
-        loadedProjectData = ProjectSerializer.LoadProjectFile(filepath);
-        Platform.Current.SetWindowTitle("Concrete Engine [" + Path.GetFullPath(loadedProjectFilePath) + "]");
-
-        // initialize asset database
-        AssetDatabase.Rebuild();
-
-        // compile scripts
-        ScriptManager.RecompileScripts(projectRoot);
-
-        // try to load startup scene
-        if (loadedProjectData.firstScene != "")
-        {
-            string sceneRelativePath = AssetDatabase.GetPath(Guid.Parse(loadedProjectData.firstScene));
-            string sceneFullPath = Path.Combine(projectRoot, sceneRelativePath);
-            SceneManager.LoadScene(sceneFullPath);
-        }
-        else
-        {
-            SceneManager.CreateAndLoadNewScene();
-        }
-        
-        if (!isTemp)
-        {
-            // remember project
-            if (File.Exists(lastProjectMemoryPath)) File.Delete(lastProjectMemoryPath);
-            File.WriteAllText(lastProjectMemoryPath, filepath);
-            Debug.Log("Remembered the newly loaded project.");
-        }
-
         // rebuild shared ref for scripts
         AfterProjectLoad(dir);
-
-        // make sure gitignore exists
-
     }
 
     private static void CopyDirectory(string source, string dest)

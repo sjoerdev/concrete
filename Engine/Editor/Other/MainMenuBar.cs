@@ -10,9 +10,6 @@ public static unsafe class MainMenuBar
     private static bool openSceneDialog = false;
     private static bool saveSceneDialog = false;
 
-    private static bool openProjectFileDialog = false;
-    private static bool saveProjectFileDialog = false;
-
     private static bool openProjectDirDialog = false;
     private static bool saveProjectDirDialog = false;
 
@@ -21,9 +18,7 @@ public static unsafe class MainMenuBar
     public static void Draw(float deltaTime)
     {
         if (saveProjectDirDialog) FileDialog.Show(ref saveProjectDirDialog, ref fileDialogPath, false, () => ProjectManager.SaveProjectDir(fileDialogPath));
-        if (saveProjectFileDialog) FileDialog.Show(ref saveProjectFileDialog, ref fileDialogPath, true, () => ProjectManager.SaveProjectFile(fileDialogPath));
         if (openProjectDirDialog) FileDialog.Show(ref openProjectDirDialog, ref fileDialogPath, false, () => ProjectManager.LoadProjectDir(fileDialogPath));
-        if (openProjectFileDialog) FileDialog.Show(ref openProjectFileDialog, ref fileDialogPath, true, () => ProjectManager.LoadProjectFile(fileDialogPath));
 
         if (saveSceneDialog) FileDialog.Show(ref saveSceneDialog, ref fileDialogPath, true, () => SceneManager.SaveScene(fileDialogPath));
         if (openSceneDialog) FileDialog.Show(ref openSceneDialog, ref fileDialogPath, true, () => SceneManager.LoadScene(fileDialogPath));
@@ -43,11 +38,7 @@ public static unsafe class MainMenuBar
                 ImGui.BeginDisabled(ProjectManager.loadedProjectData == null);
                 if (ImGui.MenuItem("Save Project")) saveProjectDirDialog = true;
                 ImGui.EndDisabled();
-                ImGui.BeginDisabled(ProjectManager.loadedProjectData == null);
-                if (ImGui.MenuItem("Save Project File")) saveProjectFileDialog = true;
-                ImGui.EndDisabled();
                 if (ImGui.MenuItem("Open Project")) openProjectDirDialog = true;
-                if (ImGui.MenuItem("Open Project File")) openProjectFileDialog = true;
 
                 ImGui.Spacing();
                 ImGui.Separator();
