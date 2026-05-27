@@ -9,8 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />
-    <PackageReference Include="SDL3-CS" Version="3.3.7" />
-    <PackageReference Include="SDL3-CS.Native" Version="3.3.7" />
+    <PackageReference Include="SDL3-CS" Version="3.4.2" />
+    <PackageReference Include="SDL3-CS.Native" Version="3.4.2" />
   </ItemGroup>
 
 </Project>
