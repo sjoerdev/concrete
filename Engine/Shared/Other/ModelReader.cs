@@ -1,7 +1,7 @@
 using System.Numerics;
 using Silk.NET.OpenGL;
 using SharpGLTF.Schema2;
-using SixLabors.ImageSharp.PixelFormats;
+using StbImageSharp;
 
 namespace Concrete;
 
@@ -80,13 +80,12 @@ public static class ModelReader
 
     private static unsafe uint LoadTexture(Image gltf_image, int unit)
     {
-        // imagesharp
+        // stb image sharp
         var bytes = gltf_image.Content.Content.Span;
-        var is_image = SixLabors.ImageSharp.Image.Load<Rgba32>(bytes);
-        int width = is_image.Width;
-        int height = is_image.Height;
-        byte[] rawdata = new byte[width * height * 4];
-        is_image.CopyPixelDataTo(rawdata);
+        var image = ImageResult.FromMemory(bytes.ToArray(), ColorComponents.RedGreenBlueAlpha);
+        int width = image.Width;
+        int height = image.Height;
+        byte[] rawdata = image.Data;
 
         // create texture
         uint texture = IPlatform.Current.GetGL().GenTexture();
