@@ -18,7 +18,7 @@ public class Animator : Component
     {
         meshRenderer = gameObject.GetComponent<MeshRenderer>();
         armature = meshRenderer.AnimationArmature;
-        if (playOnAwake) PlayAnimation(0, true);
+        if (playOnAwake) if (armature.AnimationTracks.Count > 0) PlayAnimation(0, true);
     }
 
     public override void Update(float deltaTime)
