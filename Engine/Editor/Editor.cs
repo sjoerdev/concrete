@@ -13,7 +13,7 @@ namespace Concrete;
 
 public static unsafe class Editor
 {
-    static Platform platform;
+    static IPlatform platform;
     static PlatformSDL3 platform_sdl3 => platform as PlatformSDL3;
 
     static void Main()

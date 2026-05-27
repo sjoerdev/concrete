@@ -6,7 +6,7 @@ namespace Concrete;
 
 public class Shader
 {
-    private GL opengl => Platform.Current.GetGL();
+    private GL opengl => IPlatform.Current.GetGL();
 
     private uint handle;
 

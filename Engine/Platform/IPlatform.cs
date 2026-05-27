@@ -4,9 +4,9 @@ using Silk.NET.OpenGL;
 
 namespace Concrete;
 
-public abstract class Platform
+public abstract class IPlatform
 {
-    public static Platform Current;
+    public static IPlatform Current;
 
     public abstract GL GetGL();
 

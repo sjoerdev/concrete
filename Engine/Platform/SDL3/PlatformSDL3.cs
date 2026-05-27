@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Concrete;
 
-public unsafe class PlatformSDL3 : Platform
+public unsafe class PlatformSDL3 : IPlatform
 {
     private GL opengl = null;
 

@@ -6,7 +6,7 @@ namespace Concrete;
 
 public static class Player
 {
-    static Platform platform;
+    static IPlatform platform;
 
     static void Main()
     {

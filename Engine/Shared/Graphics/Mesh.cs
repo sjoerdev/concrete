@@ -18,7 +18,7 @@ public class Mesh
 
     public unsafe void Render()
     {
-        var opengl = Platform.Current.GetGL();
+        var opengl = IPlatform.Current.GetGL();
         opengl.BindVertexArray(vao);
         opengl.DrawElements(GLEnum.Triangles, (uint)indices.Count, DrawElementsType.UnsignedInt, null);
         opengl.BindVertexArray(0);
@@ -27,7 +27,7 @@ public class Mesh
     public unsafe void SetupBuffers()
     {
         // get opengl context
-        var opengl = Platform.Current.GetGL();
+        var opengl = IPlatform.Current.GetGL();
 
         // create buffers
         vao = opengl.GenVertexArray();

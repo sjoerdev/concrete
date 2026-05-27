@@ -88,7 +88,7 @@ public static class ProjectManager
         // load project
         loadedProjectFilePath = path;
         loadedProjectData = ProjectSerializer.LoadProjectFile(path);
-        Platform.Current.SetWindowTitle("Concrete Engine [" + Path.GetFullPath(loadedProjectFilePath) + "]");
+        IPlatform.Current.SetWindowTitle("Concrete Engine [" + Path.GetFullPath(loadedProjectFilePath) + "]");
 
         // initialize asset database
         AssetDatabase.Rebuild();
