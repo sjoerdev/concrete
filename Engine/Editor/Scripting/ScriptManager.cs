@@ -14,7 +14,7 @@ public static class ScriptManager
     public static byte[] RecompileScripts(string directoryToScan)
     {
         var dllbytes = ScriptCompiler.RecompileScripts(directoryToScan);
-        cachedAssembly = Assembly.Load(dllbytes);
+        if (dllbytes != null) cachedAssembly = Assembly.Load(dllbytes);
         return dllbytes;
     }
 
