@@ -17,6 +17,7 @@
     <PackageReference Include="Hexa.NET.ImGui.Backends.SDL3" Version="1.0.18" />
     <PackageReference Include="Hexa.NET.ImGuizmo" Version="2.2.9" />
     <PackageReference Include="Hexa.NET.ImPlot" Version="2.2.9" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
   </ItemGroup>
 
   <!-- include resources the editor needs -->

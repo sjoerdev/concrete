@@ -62,9 +62,31 @@ public static unsafe class Editor
         
         // imgui display scaling
         ImGui.GetStyle().FontScaleDpi = platform.GetDisplayScalingFactor();
-        
+
         // load concrete project
-        ProjectManager.TryLoadLastProjectOrCreateTempProject();
+        if (File.Exists(ProjectManager.lastProjectMemoryPath))
+        {
+            Debug.Log("Last project memory file found.");
+            string lastOpenedProjectPath = File.ReadAllText(ProjectManager.lastProjectMemoryPath);
+
+            if (File.Exists(lastOpenedProjectPath))
+            {
+                Debug.Log("Last project memory file contained a valid project.");
+                string lastProjectRoot = Directory.GetParent(lastOpenedProjectPath).ToString();
+
+                // compile in memory so the types inside the scripts are known before deserializing the scenes in the project
+                ScriptManager.cachedAssembly = null;
+                var dllbytes = ScriptManager.RecompileScripts(lastProjectRoot);
+
+                // load the project and deserialize its main scene file
+                ProjectManager.LoadProjectDir(lastProjectRoot);
+            }
+        }
+        else
+        {
+            Debug.Log("No last project memory file found.");
+            ProjectManager.CreateAndLoadTempProject();
+        }
     }
 
     static void UpdateWindow(float deltaTime)

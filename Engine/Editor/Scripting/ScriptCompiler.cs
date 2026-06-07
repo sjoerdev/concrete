@@ -1,14 +1,11 @@
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Concrete;
 
-public static class ScriptManager
+public static class ScriptCompiler
 {
-    public static Assembly cachedAssembly;
-
     public static byte[] RecompileScripts(string directoryToScan)
     {
         bool NotOfBinOrObj(string file)
@@ -25,34 +22,30 @@ public static class ScriptManager
         if (scriptPaths.Count == 0)
         {
             Debug.Log("No scripts found to compile.");
-            cachedAssembly = null;
             return null;
         }
 
         Debug.Log($"Compiling {scriptPaths.Count} script(s)...");
 
-        var compiledAssembly = CompileScriptsToAssembly(scriptPaths, out var errors, out var dllbytes);
+        var compiledAssembly = CompileScriptsToAssembly(scriptPaths, out var errors, out var dllbytes, directoryToScan);
 
         if (compiledAssembly == null)
         {
             Debug.Log($"Script compilation failed with {errors.Count} errors");
             foreach (var error in errors) Debug.Log(error.ToString());
-            cachedAssembly = null;
             return null;
         }
-
-        cachedAssembly = compiledAssembly;
 
         Debug.Log("Scripts compiled and loaded successfully.");
 
         return dllbytes;
     }
 
-    public static Assembly CompileScriptsToAssembly(List<string> paths, out List<Diagnostic> errors, out byte[] dllbytes)
+    public static Assembly CompileScriptsToAssembly(List<string> paths, out List<Diagnostic> errors, out byte[] dllbytes, string projectRoot)
     {
         dllbytes = null;
         errors = null;
-        
+
         // parse scripts into syntax trees
         List<SyntaxTree> syntaxTrees = [];
         for (int i = 0; i < paths.Count; i++)
@@ -76,15 +69,19 @@ public static class ScriptManager
         // get references to dotnet runtime
         string[] trustedPlatformAssembliesPaths = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")).Split(Path.PathSeparator);
         var dotnetRuntimeReferences = trustedPlatformAssembliesPaths.Select(path => MetadataReference.CreateFromFile(path)).ToList();
-        
+
         // combine all references
         List<MetadataReference> references = [];
         references.Add(sharedAssemblyReference);
         references.AddRange(dotnetRuntimeReferences);
-
+        
         // compile scripts
-        var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
-        var compilation = CSharpCompilation.Create("ScriptsAssembly", syntaxTrees, references, compilationOptions);
+        var compilationOptions = new CSharpCompilationOptions(
+            outputKind: OutputKind.DynamicallyLinkedLibrary, 
+            optimizationLevel: OptimizationLevel.Release, 
+            deterministic: true
+        );
+        var compilation = CSharpCompilation.Create("Scripts", syntaxTrees, references, compilationOptions);
 
         // load il into memory
         using var memoryStream = new MemoryStream();
@@ -100,39 +97,8 @@ public static class ScriptManager
         // return dll bytes
         dllbytes = memoryStream.ToArray();
 
-        // load assembly from il in memory
-        var assembly = Assembly.Load(memoryStream.ToArray());
-
-        // return the assembly
+        // return assembly
+        var assembly = Assembly.Load(dllbytes);
         return assembly;
-    }
-
-    public static Type GetClassTypeOfScript(string scriptPath)
-    {
-        string source = File.ReadAllText(scriptPath);
-        var regexMatch = Regex.Match(source, @"class\s+([A-Za-z0-9_]+)");
-        string className = regexMatch.Groups[1].Value;
-
-        if (cachedAssembly != null)
-        {
-            var non_recomp_type = cachedAssembly.GetTypes().FirstOrDefault(x => x.Name == className);
-
-            // script assembly already had the compiled script
-            if (non_recomp_type != null) return non_recomp_type;
-            else
-            {
-                // script assembly existed but did not contain the script yet
-                RecompileScripts(ProjectManager.projectRoot);
-                var recomp_type = cachedAssembly.GetTypes().FirstOrDefault(x => x.Name == className);
-                return recomp_type;
-            }
-        }
-        else
-        {
-            // assembly was null, needed to recompile anyway
-            RecompileScripts(ProjectManager.projectRoot);
-            var recomp_type = cachedAssembly.GetTypes().FirstOrDefault(x => x.Name == className);
-            return recomp_type;
-        }
     }
 }

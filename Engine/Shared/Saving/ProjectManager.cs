@@ -12,34 +12,6 @@ public static class ProjectManager
     public static string lastProjectMemoryPath = Path.Combine(concreteDataPath, "LastProject.txt");
     public static string tempProjectPath = Path.Combine(concreteDataPath, "TempProject");
 
-    public static void TryLoadLastProjectOrCreateTempProject()
-    {
-        if (File.Exists(lastProjectMemoryPath))
-        {
-            Debug.Log("Last project memory file found.");
-            
-            string lastOpenedProjectPath = File.ReadAllText(lastProjectMemoryPath);
-            
-            if (File.Exists(lastOpenedProjectPath))
-            {
-                Debug.Log("Last project memory file contained a valid project.");
-                LoadProjectDir(Directory.GetParent(lastOpenedProjectPath).ToString());
-            }
-            else
-            {
-                Debug.Log("Last project memory file did not contain a valid project.");
-                File.Delete(lastProjectMemoryPath);
-                Debug.Log("Invalid last project memory file deleted.");
-                CreateAndLoadTempProject();
-            }
-        }
-        else
-        {
-            Debug.Log("No last project memory file found.");
-            CreateAndLoadTempProject();
-        }
-    }
-
     public static void CreateAndLoadTempProject()
     {
         Debug.Log("Creating and loading a temporary project.");
@@ -80,6 +52,12 @@ public static class ProjectManager
         }
     }
 
+    // the scripts assembly needs to be loaded before this function if the project contains scenes that contain scripts
+    // its needed for deserializing a scene containing scripts, the scene deserializer needs to know about the script types
+    // the editor needs to manually make a call to compile scripts before ever calling this function
+    // the player loads a Scripts.dll into memory as a file that gets placed in the exported game directory by the editor when building the game
+    // this function is however allowed to be called without scripts assembly being loaded if the project dir doesnt contain scenes with scripts
+    // for example when loading an empty temp project, or when creating a new project and loading that
     public static void LoadProjectDir(string dir, bool isTemp = false)
     {
         var path = Path.Combine(dir, "project.json");
@@ -93,8 +71,8 @@ public static class ProjectManager
         // initialize asset database
         AssetDatabase.Rebuild();
 
-        // compile scripts
-        ScriptManager.RecompileScripts(projectRoot);
+        // if the project has a scene, and that scene contains gameobject, and those gameobjects have scripts
+        // then the scripts assembly needs to be loaded into memory before deserializing the scene, or it will crash
 
         // try to load startup scene
         if (loadedProjectData.firstScene != "")

@@ -101,6 +101,12 @@ public static class BuildWindow
         // move script assembly dll to build dir
         SetStatus("Compiling scripts...");
         var dllbytes = ScriptManager.RecompileScripts(ProjectManager.projectRoot);
+        if (dllbytes == null)
+        {
+            SetStatus("Script compilation failed", new Vector3(1, 0, 0));
+            building = false;
+            return;
+        }
         File.WriteAllBytes(Path.Combine(buildDirectory, "Scripts.dll"), dllbytes);
 
         // move game assets to build directory

@@ -18,7 +18,20 @@ public static unsafe class MainMenuBar
     public static void Draw(float deltaTime)
     {
         if (saveProjectDirDialog) FileDialog.Show(ref saveProjectDirDialog, ref fileDialogPath, false, () => ProjectManager.SaveProjectDir(fileDialogPath));
-        if (openProjectDirDialog) FileDialog.Show(ref openProjectDirDialog, ref fileDialogPath, false, () => ProjectManager.LoadProjectDir(fileDialogPath));
+        if (openProjectDirDialog) FileDialog.Show(ref openProjectDirDialog, ref fileDialogPath, false, () =>
+        {
+            // script assembly needs to be in memory before loading project
+            ScriptManager.cachedAssembly = null;
+            var dllbytes = ScriptManager.RecompileScripts(fileDialogPath);
+            if (dllbytes == null)
+            {
+                Debug.Log("Script compilation failed, project could not be loaded");
+                return;
+            }
+
+            // load project
+            ProjectManager.LoadProjectDir(fileDialogPath);
+        });
 
         if (saveSceneDialog) FileDialog.Show(ref saveSceneDialog, ref fileDialogPath, true, () => SceneManager.SaveScene(fileDialogPath));
         if (openSceneDialog) FileDialog.Show(ref openSceneDialog, ref fileDialogPath, true, () => SceneManager.LoadScene(fileDialogPath));
