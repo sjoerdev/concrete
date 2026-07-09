@@ -7,9 +7,8 @@ public static class CSProjectManager
 {
     public static void RebuildCSProject(string dir)
     {
-        // rebuild csproj file
+        // rebuild or initialize the csproj file without removing any manual edits
         string csproj = Path.Combine(dir, "project.csproj");
-        if (File.Exists(csproj)) File.Delete(csproj);
         string[] properties =
         [
             "<OutputType>library</OutputType>",
@@ -19,10 +18,10 @@ public static class CSProjectManager
             "<DebugType>embedded</DebugType>",
             "<SatelliteResourceLanguages>none</SatelliteResourceLanguages>"
         ];
-        Dotnet.New(csproj, properties);
+        if (!File.Exists(csproj)) Dotnet.New(csproj, properties);
 
-        // add the editor's shared assembly as a reference for script autocomplete
-        Dotnet.AddDll(csproj, Path.GetFullPath("Shared.dll"));
+        // add or update the editor's shared assembly reference for script autocomplete
+        Dotnet.EnsureSharedReference(csproj);
 
         // rebuild gitignore
         string[] ignores = 

@@ -78,4 +78,72 @@ public static class Dotnet
         document.Save(csproj);
         Execute($"build \"{csproj}\"");
     }
+
+    public static void EnsureSharedReference(string csproj)
+    {
+        var dll = Path.GetFullPath("Shared.dll");
+
+        var document = new XmlDocument();
+        document.Load(csproj);
+
+        XmlElement project = document.DocumentElement as XmlElement;
+        if (project is null)
+        {
+            project = document.CreateElement("Project");
+            document.AppendChild(project);
+        }
+
+        XmlElement sharedReference = null;
+        XmlNodeList references = document.SelectNodes("//Reference");
+        if (references != null)
+        {
+            foreach (XmlNode node in references)
+            {
+                if (node is XmlElement reference && string.Equals(reference.GetAttribute("Include"), "Shared", StringComparison.OrdinalIgnoreCase))
+                {
+                    sharedReference = reference;
+                    break;
+                }
+            }
+        }
+
+        if (sharedReference is null)
+        {
+            XmlElement itemGroup = null;
+            XmlNodeList itemGroups = document.SelectNodes("//ItemGroup");
+            if (itemGroups != null)
+            {
+                foreach (XmlNode node in itemGroups)
+                {
+                    if (node is XmlElement element)
+                    {
+                        itemGroup = element;
+                        break;
+                    }
+                }
+            }
+
+            if (itemGroup is null)
+            {
+                itemGroup = document.CreateElement("ItemGroup");
+                project.AppendChild(itemGroup);
+            }
+
+            sharedReference = document.CreateElement("Reference");
+            sharedReference.SetAttribute("Include", "Shared");
+            itemGroup.AppendChild(sharedReference);
+        }
+
+        XmlElement hintPath = sharedReference.SelectSingleNode("HintPath") as XmlElement ?? document.CreateElement("HintPath");
+        if (hintPath.ParentNode is null)
+        {
+            sharedReference.AppendChild(hintPath);
+        }
+
+        string relativePath = Path.GetRelativePath(Path.GetDirectoryName(csproj)!, dll);
+        hintPath.InnerText = relativePath;
+
+        document.Save(csproj);
+        Execute($"build \"{csproj}\"");
+    }
 }
