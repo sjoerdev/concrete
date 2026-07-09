@@ -80,6 +80,9 @@ public static unsafe class Editor
 
                 // load the project and deserialize its main scene file
                 ProjectManager.LoadProjectDir(lastProjectRoot);
+
+                // rebuild the game csproj for autocomplete
+                CSProjectManager.RebuildCSProject(lastProjectRoot);
             }
         }
         else

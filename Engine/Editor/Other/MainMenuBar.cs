@@ -31,6 +31,9 @@ public static unsafe class MainMenuBar
 
             // load project
             ProjectManager.LoadProjectDir(fileDialogPath);
+
+            // rebuild the game csproj for autocomplete
+            CSProjectManager.RebuildCSProject(fileDialogPath);
         });
 
         if (saveSceneDialog) FileDialog.Show(ref saveSceneDialog, ref fileDialogPath, true, () => SceneManager.SaveScene(fileDialogPath));
