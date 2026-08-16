@@ -41,7 +41,7 @@ lightObject.name = "Directional Light";
 
 ## Usage Requirements:
 - The .NET 10 SDK ([Download](https://dotnet.microsoft.com/en-us/download))
-- Visual C++ Redistributable ([Download](https://aka.ms/vs/17/release/vc_redist.x64.exe))
+- Visual C++ Redistributable ([Download](https://aka.ms/vc14/vc_redist.x64.exe))
 
 ## Building:
 
